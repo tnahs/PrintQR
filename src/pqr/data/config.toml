@@ -1,0 +1,366 @@
+# ┌─ Options ──────────────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   General options for creating QR Codes.                                                       │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[options]
+
+# Encoding method used for the QR Code's data.
+#
+#   Available options:
+#     "toml"
+#     "compact"
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   "compact"
+#
+encoding = "compact"
+
+# Add a two-line caption to the QR Code.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   true
+#
+add-caption = true
+
+# Add the current date into the QR Code's data. See `template.date` for formatting.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   false
+#
+add-date = false
+
+
+# ┌─ Print Settings ───────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Default print settings. Use `--ignore-defaults` to ignore these values.                      │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[print-settings.filament]
+
+# The filament's name.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+name = ""
+
+# The filament's manufacturer.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+brand = ""
+
+# The filament's material type e.g. "PLA", "PETG", etc.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+material = ""
+
+[print-settings.printer]
+
+# The name of the printer that printed this print.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+name = ""
+
+# The printer's nozzle size in mm.
+#
+#   cli:       true
+#   unit:      mm
+#   type:      float
+#   default:   0.0
+#
+nozzle-size = 0.0
+
+# The printer's nozzle type e.g. "Brass", "HF Brass", "HF ObXidian", etc.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+nozzle-type = ""
+
+[print-settings.slicer]
+
+# The name of the slicer that sliced this print e.g. "PrusaSlcer".
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+name = ""
+
+# The print settings preset e.g. "0.25mm SPEED"
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+setting-preset = ""
+
+# The filament preset e.g. "Prusament PLA"
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+filament-preset = ""
+
+# The printer preset e.g. "Original Prusa MK4S HF0.4 nozzle"
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+printer-preset = ""
+
+# The max volumetric speed.
+#
+#   cli:       true
+#   unit:      mm³/s
+#   type:      int
+#   default:   0
+#
+max-volumetric-speed = 0
+
+# The layer height.
+#
+#   cli:       true
+#   unit:      mm
+#   type:      float
+#   default:   0.0
+#
+layer-height = 0.0
+
+# The nozzle temperature.
+#
+#   cli:       true
+#   unit:      °C
+#   type:      str
+#   default:   0
+#
+nozzle-temp = 0
+
+# The bed temperature.
+#
+#   cli:       true
+#   unit:      °C
+#   type:      int
+#   default:   0
+#
+bed-temp = 0
+
+[print-settings.misc]
+
+# Any relevant notes.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+notes = ""
+
+
+# ┌─ Template Strings ─────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Template strings for generating dates, filenames and image captions.                         │
+# │                                                                                                │
+# │   Use the `print` command to see all available fields and date formatting syntax.              │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[template]
+
+# Template used to generate the date. Uses strftime syntax. This format is used
+# when generating filenames or adding the current date into the QR Code.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   type:      str
+#   default:   "%Y-%m-%d"
+#
+date = "%Y-%m-%d"
+
+# Template used to generate image, TOML and GCode filenames.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   "{filament-material}_{filament-brand}_{filament-name}"
+#
+filename = "{filament-material}_{filament-brand}_{filament-name}"
+
+# Template used to generate the caption - line one.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   "{filament-material}•{filament-brand}"
+#
+caption-line-one = "{filament-material}•{filament-brand}"
+
+# Template used to generate the caption - line two.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   "{filament-name}"
+#
+caption-line-two = "{filament-name}"
+
+
+# ┌─ Slicer ───────────────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Slicer specific settings                                                                     │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[slicer]
+
+# Absolute path to a slicer's executable.
+#
+#   cli:       false
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+executable = ""
+
+
+# ┌─ QR Code ──────────────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Advanced options for creating QR Codes.                                                      │
+# │                                                                                                │
+# │   See https://www.qrcode.com/en/about/standards.html for specification details.                │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[qr-code]
+
+# Image format.
+#
+#   Available options:
+#     "png"
+#     "jpg"
+#
+#   cli:       false
+#   unit:      -
+#   type:      str
+#   default:   "png"
+#
+format = "png"
+
+# Maximum image width. Set to 0 to disable maximum width.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   0
+#
+max-width = 0
+
+# Maximum image height. Set to 0 to disable maximum height.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   0
+#
+max-height = 0
+
+# Size of each "pixel".
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   10
+#
+module-size = 10
+
+# Number of "pixels" of padding around the image. QR Code spec default is 4.
+#
+#   cli:       false
+#   unit:      -
+#   type:      int
+#   default:   0
+#
+border = 0
+
+# QR Code error correction level.
+#
+#   Available options:
+#     "low"
+#     "medium"
+#     "quartile"
+#     "high"
+#
+#   cli:       false
+#   unit:      -
+#   type:      str
+#   default:   "medium"
+#
+error-correction = "medium"
+
+# Caption font size.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   55
+#
+caption-size = 55
+
+# Padding above caption.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   20
+#
+caption-padding-top = 20
+
+# Padding above caption.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   20
+#
+caption-padding-bottom = 20
+
+# Caption line-spacing.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   5
+#
+caption-line-spacing = 10

@@ -1,0 +1,142 @@
+#!/usr/bin/env zsh
+
+
+# Project root directory
+# https://unix.stackexchange.com/a/115431
+root=${0:A:h:h}
+
+tmp="$root/tmp"
+
+debug=""
+
+
+if [ -n "$ZSH_VERSION" ]; then
+    script_name=$(basename "${(%):-%N}")
+else
+    script_name=$(basename "$0")
+fi
+
+
+function prepare_test {
+    mkdir -p "$tmp"
+}
+
+
+function print_help {
+    cat <<EOF
+Test run PrintQR.
+ 
+\e[4mUsage:\e[0m ${script_name} [--help] <COMMAND> [--debug]
+ 
+\e[4mCommands:\e[0m
+  prompts
+  args
+  encoded
+ 
+\e[4mOptions:\e[0m
+  -d, --debug   Run in debug mode
+  -h, --help    Show help
+EOF
+}
+
+
+function from_prompts {
+    uv run pqr $debug prompts                        \
+                                                     \
+        --output "$tmp"                              \
+        --encoding "compact"                         \
+        --add-caption                                \
+        --add-date                                   \
+        --date-template "%Y.%m.%d"                   \
+        --filename-template "{filament-name}-{date}" \
+        --caption-template "{filament-name}" "{date}"
+}
+
+
+function from_args {
+    uv run pqr $debug args                                \
+                                                          \
+        --output "$tmp"                                   \
+        --encoding "compact"                              \
+        --add-caption                                     \
+        --add-date                                        \
+        --date-template "%Y.%m.%d"                        \
+        --filename-template "{filament-name}-{date}"      \
+        --caption-template "{filament-name}" "{date}"     \
+                                                          \
+        --filament-name               "FILAMENT_NAME"     \
+        --filament-brand              "FILAMENT_BRAND"    \
+        --filament-material           "FILAMENT_MATERIAL" \
+                                                          \
+        --printer-name                "PRINTER_NAME"      \
+        --printer-nozzle-size         99.9                \
+        --printer-nozzle-type         "NOZZLE_TYPE"       \
+                                                          \
+        --slicer-name                 "SLICER_NAME"       \
+        --slicer-setting-preset       "SETTING_PRESET"    \
+        --slicer-filament-preset      "FILAMENT_PRESET"   \
+        --slicer-printer-preset       "PRINTER_PRESET"    \
+        --slicer-max-volumetric-speed 999                 \
+        --slicer-layer-height         99.9                \
+        --slicer-nozzle-temp          999                 \
+        --slicer-bed-temp             999                 \
+        --slicer-print-time           "99:59"             \
+                                                          \
+        --misc-notes                  "MISC_NOTES"
+}
+
+
+function from_encoded {
+    uv run pqr $debug encoded                             \
+                                                          \
+        --output "$tmp"                                   \
+        --input "${root}/src/pqr/tests/encoded-data.toml" \
+        --encoding "compact"                              \
+        --add-caption                                     \
+        --add-date                                        \
+        --date-template "%Y.%m.%d"                        \
+        --filename-template "{filament-name}-{date}"      \
+        --caption-template "{filament-name}" "{date}"
+}
+
+
+function main {
+
+    if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+        print_help
+        exit 1
+    elif [ $# -eq 0 ]; then
+        echo "Error: Missing command"
+        echo
+        print_help
+        exit 2
+    fi
+
+    if [[ "$2" == "--debug" || "$2" == "-d" ]]; then
+        debug="--debug"
+    fi
+
+    case "$1" in
+        "prompts")
+            prepare_test
+            from_prompts
+            ;;
+        "args")
+            prepare_test
+            from_args
+            ;;
+        "encoded")
+            prepare_test
+            from_encoded
+            ;;
+        *)
+            echo "Error: Invalid command '$1'"
+            echo
+            print_help
+            exit 2
+            ;;
+    esac
+}
+
+
+main "$@"

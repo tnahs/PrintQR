@@ -1,0 +1,135 @@
+[[print-settings]]
+name = "name"
+category = "filament"
+type = "str"
+compact-name = ""
+unit = ""
+description = "filament name"
+
+[[print-settings]]
+name = "brand"
+category = "filament"
+type = "str"
+compact-name = "fb"
+unit = ""
+description = "filament brand"
+
+[[print-settings]]
+name = "material"
+category = "filament"
+type = "str"
+compact-name = "fm"
+unit = ""
+description = "filament material"
+
+[[print-settings]]
+name = "name"
+category = "printer"
+type = "str"
+compact-name = ""
+unit = ""
+description = "printer name"
+
+[[print-settings]]
+name = "nozzle-size"
+category = "printer"
+type = "float"
+compact-name = "ns"
+unit = "mm"
+description = "nozzle size"
+
+[[print-settings]]
+name = "nozzle-type"
+category = "printer"
+type = "str"
+compact-name = "nt"
+unit = ""
+description = "nozzle type"
+
+[[print-settings]]
+name = "name"
+category = "slicer"
+type = "str"
+compact-name = ""
+unit = ""
+description = "slicer name"
+
+[[print-settings]]
+name = "setting-preset"
+category = "slicer"
+type = "str"
+compact-name = "sp"
+unit = ""
+description = "setting preset"
+
+[[print-settings]]
+name = "filament-preset"
+category = "slicer"
+type = "str"
+compact-name = "fp"
+unit = ""
+description = "filament preset"
+
+[[print-settings]]
+name = "printer-preset"
+category = "slicer"
+type = "str"
+compact-name = "pp"
+unit = ""
+description = "printer preset"
+
+[[print-settings]]
+name = "max-volumetric-speed"
+category = "slicer"
+type = "int"
+compact-name = "vs"
+unit = "mm³/s"
+description = "max volumetric speed"
+
+[[print-settings]]
+name = "layer-height"
+category = "slicer"
+type = "float"
+compact-name = "lh"
+unit = "mm"
+description = "layer height"
+
+[[print-settings]]
+name = "nozzle-temp"
+category = "slicer"
+type = "int"
+compact-name = "nt"
+unit = "°C"
+description = "nozzle temp"
+
+[[print-settings]]
+name = "bed-temp"
+category = "slicer"
+type = "int"
+compact-name = "bt"
+unit = "°C"
+description = "bed temp"
+
+[[print-settings]]
+name = "print-time"
+category = "slicer"
+type = "str"
+compact-name = "pt"
+unit = ""
+description = "print time"
+
+[[print-settings]]
+name = "date"
+category = "misc"
+type = "str"
+compact-name = ""
+unit = ""
+description = "current date"
+
+[[print-settings]]
+name = "notes"
+category = "misc"
+type = "str"
+compact-name = ""
+unit = ""
+description = "notes"

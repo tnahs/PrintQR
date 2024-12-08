@@ -1,0 +1,23 @@
+[filament]
+name = "FILAMENT_NAME"
+brand = "FILAMENT_BRAND"
+material = "FILAMENT_MATERIAL"
+
+[printer]
+name = "PRINTER_NAME"
+nozzle-size = 99.9
+nozzle-type = "NOZZLE_TYPE"
+
+[slicer]
+name = "SLICER_NAME"
+setting-preset = "SETTING_PRESET"
+filament-preset = "FILAMENT_PRESET"
+printer-preset = "PRINTER_PRESET"
+max-volumetric-speed = 999
+layer-height = 99.9
+nozzle-temp = 999
+bed-temp = 999
+print-time = "99:59"
+
+[misc]
+notes = "MISC_NOTES"

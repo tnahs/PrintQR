@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+
+ruff format ./src/**/*.py
+ruff check --select I --fix
