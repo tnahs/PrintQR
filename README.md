@@ -4,7 +4,7 @@
 
 ## Installation
 
-The recommended method for installation requires [`uv`][uv] This allows us
+The recommended method for installation requires [`uv`][uv]. This allows us
 to easily install `PrintQR` into its own virtual environment with the correct
 version of python and add it to `PATH`.
 
@@ -34,8 +34,7 @@ installation using `pip`.
     $ pqr --version
    ```
 
-5. Initialize `PrintQR`. This creates a `~/.pqr` directory and a
-   `config.toml` file.
+5. Initialize `PrintQR`. This creates a `~/.pqr` directory and a `config.toml` file.
 
    ```shell
    $ pqr init
