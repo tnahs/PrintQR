@@ -1,5 +1,7 @@
-<br>
-<div align="center"><img src="./images/qr-code.png"></div>
+<div align="center">
+    <img src="./images/logo-light.png#gh-light-mode-only">
+    <img src="./images/logo-dark.png#gh-dark-mode-only">
+</div>
 <h1 align="center">PrintQR - Generate QR Codes for 3d prints</h1>
 
 ## Installation
