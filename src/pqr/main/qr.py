@@ -54,9 +54,14 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
     image.save(image_path)
     image.close()
 
+    # Save a copy of the QR Code data in the output directory.
     config_path = f"{filename_formatted}.toml"
     config_path = output_directory / config_path
     config_path.write_text(print_settings.dump())
+
+    # Save a copy of the QR Code data in the user data directory.
+    history_path = App.PATH_USER_DATA / App.NAME_HISTORY_TOML
+    history_path.write_text(print_settings.dump())
 
     ui.print_panel(
         f"QR Code and TOML config saved to [cyan]{image_path.parent}[/cyan]",

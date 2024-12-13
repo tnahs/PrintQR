@@ -34,6 +34,7 @@ class App:
     PATH_FONT_CAPTION = PATH_FONTS / "better-vcr.ttf"
 
     NAME_CONFIG_TOML = "config.toml"
+    NAME_HISTORY_TOML = "history.toml"
     NAME_PRINT_SETTINGS_TOML = "print-settings.toml"
 
 

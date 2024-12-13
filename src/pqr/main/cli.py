@@ -163,7 +163,7 @@ arg_caption_templates = Option(
 #
 # TODO: It might be a better idea to set the `CONFIG` value so we don't have to keep
 # passing around the variables. As we add more options the list of parameters will
-# expand and it would be much better it either pass a `Config` object ot just access
+# expand and it would be much better it either pass a `Config` object or just access
 # the global CONFIG.
 def process_shared_args(  # noqa: PLR0913, PLR0917
     output_directory: Path,
@@ -470,7 +470,7 @@ cli.command(
 )(_wrapper_run_command_generate_from_args())
 
 
-# Command: config ----------------------------------------------------------------------
+# Command: encoded ---------------------------------------------------------------------
 
 
 @cli.command(
@@ -549,6 +549,104 @@ def run_command_generate_from_encoded(  # noqa: PLR0913, PLR0917
     app.load_config(user=True)
 
     # TODO: We need to run validation before this data is used for updating.
+    PRINT_SETTINGS.update(data)
+
+    if add_date is True:
+        PRINT_SETTINGS.stamp_date(args.date_template)
+
+    print_settings = app.revise_print_settings(
+        PRINT_SETTINGS,
+        args.ignore_defaults,
+        args.encoding,
+        args.with_units,
+        args.add_date,
+        args.date_template,
+        args.filename_template,
+        args.caption_templates,
+    )
+
+    qr.generate_and_save_qr_code(
+        print_settings,
+        args.add_caption,
+        args.with_units,
+        args.encoding,
+        args.output_directory,
+        args.filename_template,
+        args.caption_templates,
+    )
+
+
+# Command: revise ----------------------------------------------------------------------
+
+
+@cli.command(
+    name="revise",
+    no_args_is_help=True,
+    short_help="...from [green]last generated QR Code[/green].",
+    rich_help_panel="Generate",
+)
+def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
+    output_directory: Annotated[
+        Path,
+        arg_output_directory,
+    ],
+    ignore_defaults: Annotated[
+        bool,
+        arg_ignore_defaults,
+    ] = False,
+    encoding: Annotated[
+        Encoding | None,
+        arg_encoding,
+    ] = None,
+    with_units: Annotated[
+        bool | None,
+        arg_with_units,
+    ] = None,
+    add_caption: Annotated[
+        bool | None,
+        arg_add_caption,
+    ] = None,
+    add_date: Annotated[
+        bool | None,
+        arg_add_date,
+    ] = None,
+    date_template: Annotated[
+        str | None,
+        arg_date_template,
+    ] = None,
+    filename_template: Annotated[
+        str | None,
+        arg_filename_template,
+    ] = None,
+    caption_templates: Annotated[
+        tuple[str, str] | None,
+        arg_caption_templates,
+    ] = None,
+) -> None:
+    """Revise the [green]last generated QR Code[/green]."""
+
+    args = process_shared_args(
+        output_directory,
+        ignore_defaults,
+        encoding,
+        with_units,
+        add_caption,
+        add_date,
+        date_template,
+        filename_template,
+        caption_templates,
+    )
+
+    path = App.PATH_USER_DATA / App.NAME_HISTORY_TOML
+
+    try:
+        data = read_serialized_data(path)
+    except ConfigReadError as error:
+        errors.print_config_read_error(error)
+        sys.exit(-1)
+
+    app.load_config(user=True)
+
     PRINT_SETTINGS.update(data)
 
     if add_date is True:

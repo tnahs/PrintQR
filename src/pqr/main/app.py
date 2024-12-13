@@ -22,7 +22,6 @@ from .ui import INDENT
 def load_config(user: bool) -> None:
     try:
         CONFIG.load(user)
-
     except ConfigValidationError as error:
         errors.print_config_validation_errors(error)
         sys.exit(-1)
