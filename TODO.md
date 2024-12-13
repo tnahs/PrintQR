@@ -2,20 +2,16 @@
 
 ## Improvements
 
-- Change text size to be `max-text-size`
-  - Run a loop from `max-text-size` down, until the text width is <= to the image width
+- Add config option to "slugify" the filename.
 - Allow the user to edit the raw data before generation.
 - If the user asks for a value in a filename/caption template but does not
   provide the value, then replace it with `?`.
-- Add a command to drop an `encoded` template in the current directory.
-- Add a command to drop the default `config.toml` into the current directory.
 - Add `--dump` to also dump a `TOML` file in the output directory.
   - Right now it is automatically done for every run.
+- Add a command to drop an `encoded` template in the current directory.
+- Add a command to drop the default `config.toml` into the current directory.
+- Add help text that all `Options` fallback to `config.toml`
 - Look into different pixel fonts.
-- Change the color if the default value in `ask` depending on if it's coming from:
-  - the directory's config
-  - the user's config
-  - the app's config
 - Add `confirm-all` flag to say yes to any confirmations.
   - This would just skip the revise pass.
 - Format `print-time`, so it parses out `hh:mm` or `##h##m`
@@ -28,7 +24,7 @@
   - `name_internal` - uses `_`
   - `name_external` - uses `-`
   - `name` is key name for nested dict.
-  - `path` is key name for flat fict.
+  - `path` is key name for flat dict.
 - Add tests.
 - Document code.
 - Add user documentation.

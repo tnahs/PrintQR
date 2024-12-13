@@ -40,11 +40,9 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
         caption_line_two = caption_templates[1].format(**print_settings_dict)
 
         image = _add_caption_to_image(
-            image=image,
-            image_width=CONFIG.cfg.qr_code.max_width,
-            image_height=CONFIG.cfg.qr_code.max_height,
-            caption_line_one=caption_line_one,
-            caption_line_two=caption_line_two,
+            image,
+            caption_line_one,
+            caption_line_two,
         )
 
     filename_formatted = filename_template.format(**print_settings_dict)
@@ -112,63 +110,36 @@ def to_ascii(qr_code: QRCode) -> str:
 
 def _add_caption_to_image(
     image: Image.Image,
-    image_width: int,
-    image_height: int,
     caption_line_one: str,
     caption_line_two: str,
 ) -> Image.Image:
-    font = ImageFont.truetype(
-        font=str(App.PATH_FONT_CAPTION),
-        size=CONFIG.cfg.qr_code.caption_size,
-    )
-
-    # Returns: (left, top, right, bottom)
-    caption_bbox_line_one = font.getbbox(caption_line_one)
-    caption_bbox_line_two = font.getbbox(caption_line_two)
-
-    caption_bbox_line_one_width = int(
-        caption_bbox_line_one[2] - caption_bbox_line_one[0]
-    )
-    caption_bbox_line_two_width = int(
-        caption_bbox_line_two[2] - caption_bbox_line_two[0]
-    )
-
-    caption_bbox_line_one_height = int(
-        caption_bbox_line_one[3] - caption_bbox_line_one[1]
-    )
-    caption_bbox_line_two_height = int(
-        caption_bbox_line_two[3] - caption_bbox_line_two[1]
-    )
-
-    caption_bbox_width = max(
-        caption_bbox_line_one_width,
-        caption_bbox_line_two_width,
-    )
-
     border_thickness = CONFIG.cfg.qr_code.border * CONFIG.cfg.qr_code.module_size
 
-    caption_bbox_height = (
-        CONFIG.cfg.qr_code.caption_padding_top
-        + caption_bbox_line_one_height
-        + CONFIG.cfg.qr_code.caption_line_spacing
-        + caption_bbox_line_two_height
-        + CONFIG.cfg.qr_code.caption_padding_bottom
-    )
-
-    image_width = max(
-        image_width,
+    font_size = _get_font_size(
         image.width,
-        caption_bbox_width + border_thickness,
+        border_thickness,
+        caption_line_one,
+        caption_line_two,
     )
 
-    image_height = max(
-        image_height,
-        image.height + caption_bbox_height + border_thickness,
+    font = ImageFont.truetype(
+        font=str(App.PATH_FONT_CAPTION),
+        size=font_size,
     )
+
+    caption_bbox_height = (
+        CONFIG.cfg.caption.padding_top
+        + font_size
+        + CONFIG.cfg.caption.line_spacing
+        + font_size
+        + CONFIG.cfg.caption.padding_bottom
+    )
+
+    image_height = image.height + caption_bbox_height + border_thickness
 
     image_with_caption = Image.new(
         "1",
-        (image_width, image_height),
+        (image.width, image_height),
         "white",
     )
 
@@ -176,24 +147,21 @@ def _add_caption_to_image(
     image_draw = ImageDraw.Draw(image_with_caption)
 
     # Start drawing.
+
     y_draw_pos = 0
+
     image_with_caption.paste(
         image,
-        (
-            (image_width - image.width) // 2,
-            y_draw_pos,
-        ),
+        (0, y_draw_pos),
     )
 
     # Draw first line of text.
-    y_draw_pos += (
-        image.height
-        + CONFIG.cfg.qr_code.caption_padding_top
-        + caption_bbox_line_one_height
-    )
+
+    y_draw_pos += image.height + CONFIG.cfg.caption.padding_top + font_size
+
     image_draw.text(
         (
-            image_width / 2,
+            image.width // 2,
             y_draw_pos,
         ),
         caption_line_one,
@@ -203,10 +171,12 @@ def _add_caption_to_image(
     )
 
     # Draw second line of text.
-    y_draw_pos += CONFIG.cfg.qr_code.caption_line_spacing + caption_bbox_line_two_height
+
+    y_draw_pos += CONFIG.cfg.caption.line_spacing + font_size
+
     image_draw.text(
         (
-            image_width / 2,
+            image.width // 2,
             y_draw_pos,
         ),
         caption_line_two,
@@ -216,3 +186,44 @@ def _add_caption_to_image(
     )
 
     return image_with_caption
+
+
+def _get_font_size(
+    image_width: int,
+    border_thickness: int,
+    caption_line_one: str,
+    caption_line_two: str,
+) -> int:
+    font_size_max = CONFIG.cfg.caption.font_size_max
+    font_size = font_size_max
+
+    while True:
+        font = ImageFont.truetype(
+            font=str(App.PATH_FONT_CAPTION),
+            size=font_size,
+        )
+
+        bbox_line_one = font.getbbox(caption_line_one)
+        bbox_line_one_width = int(bbox_line_one[2] - bbox_line_one[0])
+
+        bbox_line_two = font.getbbox(caption_line_two)
+        bbox_line_two_width = int(bbox_line_two[2] - bbox_line_two[0])
+
+        bbox_width = max(bbox_line_one_width, bbox_line_two_width)
+
+        if bbox_width + border_thickness <= image_width:
+            # Print a warning if the font size had to be reduced.
+            if font_size < font_size_max:
+                ui.print_panel(
+                    f"The caption font size was reduced from [green]{font_size_max}[/green] "
+                    f"to [red]{font_size}[/red] to fit the caption text.",
+                    title="Warning",
+                    border_style="red",
+                )
+
+            return font_size
+
+        font_size -= 1
+
+        if font_size < 1:
+            raise ValueError("Font size became too small to fit the caption text.")

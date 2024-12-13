@@ -60,29 +60,31 @@ class Template(BaseConfig):
     date: str
 
 
-class Slicer(BaseConfig):
-    executable: str
+class Caption(BaseConfig):
+    font_size_max: int
+    padding_top: int
+    padding_bottom: int
+    line_spacing: int
 
 
 class QRCode(BaseConfig):
     format: ImageFormat
-    max_width: int
-    max_height: int
     version: QrCodeVersion  # pyright: ignore [reportInvalidTypeForm]
     module_size: int
     border: int
     error_correction: ErrorCorrection
-    caption_size: int
-    caption_padding_top: int
-    caption_padding_bottom: int
-    caption_line_spacing: int
+
+
+class Slicer(BaseConfig):
+    executable: str
 
 
 class Config(BaseConfig):
     options: Options
     template: Template
-    slicer: Slicer
+    caption: Caption
     qr_code: QRCode
+    slicer: Slicer
     print_settings: dict
 
     @classmethod

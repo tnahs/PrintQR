@@ -47,6 +47,187 @@ add-caption = true
 add-date = false
 
 
+# ┌─ Template Strings ─────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Template strings for generating dates, filenames and image captions.                         │
+# │                                                                                                │
+# │   Use the `print` command to see all available fields and date formatting syntax.              │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[template]
+
+# Template used to generate the date. Uses strftime syntax. This format is used
+# when generating filenames or adding the current date into the QR Code.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   type:      str
+#   default:   "%Y-%m-%d"
+#
+date = "%Y-%m-%d"
+
+# Template used to generate image, TOML and GCode filenames.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   "{filament-material}_{filament-brand}_{filament-name}"
+#
+filename = "{filament-material}_{filament-brand}_{filament-name}"
+
+# Template used to generate the caption - line one.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   "{filament-material}•{filament-brand}"
+#
+caption-line-one = "{filament-material}•{filament-brand}"
+
+# Template used to generate the caption - line two.
+#
+#   cli:       true
+#   unit:      -
+#   type:      str
+#   default:   "{filament-name}"
+#
+caption-line-two = "{filament-name}"
+
+
+# ┌─ Caption ──────────────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Caption specific settings.                                                                   │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[caption]
+
+# Caption font size max. This will be reduced to fit the caption.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   55
+#
+font-size-max = 55
+
+# Padding above caption.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   20
+#
+padding-top = 20
+
+# Padding below caption.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   20
+#
+padding-bottom = 20
+
+# Caption line-spacing.
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   5
+#
+line-spacing = 10
+
+
+# ┌─ QR Code ──────────────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Advanced options for creating QR Codes.                                                      │
+# │                                                                                                │
+# │   See https://www.qrcode.com/en/about/standards.html for specification details.                │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[qr-code]
+
+# Image format.
+#
+#   Available options:
+#     "png"
+#     "jpg"
+#
+#   cli:       false
+#   unit:      -
+#   type:      str
+#   default:   "png"
+#
+format = "png"
+
+# The minimum QR Code version to use. Use "fit" to detect the best fit.
+# 
+#   Available options:
+#     "fit"
+#     1...40
+# 
+#   cli:       false
+#   unit:      -
+#   type:      Literal["fit"] | int
+#   default:   "fit"
+version = "fit"
+
+# Size of each "pixel".
+#
+#   cli:       false
+#   unit:      pixels
+#   type:      int
+#   default:   10
+#
+module-size = 10
+
+# Number of "pixels" of padding around the image. QR Code spec default is 4.
+#
+#   cli:       false
+#   unit:      -
+#   type:      int
+#   default:   0
+#
+border = 0
+
+# QR Code error correction level.
+#
+#   Available options:
+#     "low"
+#     "medium"
+#     "quartile"
+#     "high"
+#
+#   cli:       false
+#   unit:      -
+#   type:      str
+#   default:   "medium"
+#
+error-correction = "medium"
+
+
+# ┌─ Slicer ───────────────────────────────────────────────────────────────────────────────────────┐
+# │                                                                                                │
+# │   Slicer specific settings.                                                                    │
+# │                                                                                                │
+# └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+[slicer]
+
+# Absolute path to a slicer's executable.
+#
+#   cli:       false
+#   unit:      -
+#   type:      str
+#   default:   ""
+#
+executable = ""
+
+
 # ┌─ Print Settings ───────────────────────────────────────────────────────────────────────────────┐
 # │                                                                                                │
 # │   Default print settings. Use `--ignore-defaults` to ignore these values.                      │
@@ -195,193 +376,3 @@ bed-temp = 0
 #   default:   ""
 #
 notes = ""
-
-
-# ┌─ Template Strings ─────────────────────────────────────────────────────────────────────────────┐
-# │                                                                                                │
-# │   Template strings for generating dates, filenames and image captions.                         │
-# │                                                                                                │
-# │   Use the `print` command to see all available fields and date formatting syntax.              │
-# │                                                                                                │
-# └────────────────────────────────────────────────────────────────────────────────────────────────┘
-
-[template]
-
-# Template used to generate the date. Uses strftime syntax. This format is used
-# when generating filenames or adding the current date into the QR Code.
-#
-#   cli:       true
-#   unit:      -
-#   type:      str
-#   type:      str
-#   default:   "%Y-%m-%d"
-#
-date = "%Y-%m-%d"
-
-# Template used to generate image, TOML and GCode filenames.
-#
-#   cli:       true
-#   unit:      -
-#   type:      str
-#   default:   "{filament-material}_{filament-brand}_{filament-name}"
-#
-filename = "{filament-material}_{filament-brand}_{filament-name}"
-
-# Template used to generate the caption - line one.
-#
-#   cli:       true
-#   unit:      -
-#   type:      str
-#   default:   "{filament-material}•{filament-brand}"
-#
-caption-line-one = "{filament-material}•{filament-brand}"
-
-# Template used to generate the caption - line two.
-#
-#   cli:       true
-#   unit:      -
-#   type:      str
-#   default:   "{filament-name}"
-#
-caption-line-two = "{filament-name}"
-
-
-# ┌─ Slicer ───────────────────────────────────────────────────────────────────────────────────────┐
-# │                                                                                                │
-# │   Slicer specific settings                                                                     │
-# │                                                                                                │
-# └────────────────────────────────────────────────────────────────────────────────────────────────┘
-
-[slicer]
-
-# Absolute path to a slicer's executable.
-#
-#   cli:       false
-#   unit:      -
-#   type:      str
-#   default:   ""
-#
-executable = ""
-
-
-# ┌─ QR Code ──────────────────────────────────────────────────────────────────────────────────────┐
-# │                                                                                                │
-# │   Advanced options for creating QR Codes.                                                      │
-# │                                                                                                │
-# │   See https://www.qrcode.com/en/about/standards.html for specification details.                │
-# │                                                                                                │
-# └────────────────────────────────────────────────────────────────────────────────────────────────┘
-
-[qr-code]
-
-# Image format.
-#
-#   Available options:
-#     "png"
-#     "jpg"
-#
-#   cli:       false
-#   unit:      -
-#   type:      str
-#   default:   "png"
-#
-format = "png"
-
-# The minimum QR Code version to use. Use "fit" to detect the best fit.
-# 
-#   Available options:
-#     "fit"
-#     1...40
-# 
-#   cli:       false
-#   unit:      -
-#   type:      Literal["fit"] | int
-#   default:   "fit"
-version = "fit"
-
-# Maximum image width. Set to 0 to disable maximum width.
-#
-#   cli:       false
-#   unit:      pixels
-#   type:      int
-#   default:   0
-#
-max-width = 0
-
-# Maximum image height. Set to 0 to disable maximum height.
-#
-#   cli:       false
-#   unit:      pixels
-#   type:      int
-#   default:   0
-#
-max-height = 0
-
-# Size of each "pixel".
-#
-#   cli:       false
-#   unit:      pixels
-#   type:      int
-#   default:   10
-#
-module-size = 10
-
-# Number of "pixels" of padding around the image. QR Code spec default is 4.
-#
-#   cli:       false
-#   unit:      -
-#   type:      int
-#   default:   0
-#
-border = 0
-
-# QR Code error correction level.
-#
-#   Available options:
-#     "low"
-#     "medium"
-#     "quartile"
-#     "high"
-#
-#   cli:       false
-#   unit:      -
-#   type:      str
-#   default:   "medium"
-#
-error-correction = "medium"
-
-# Caption font size.
-#
-#   cli:       false
-#   unit:      pixels
-#   type:      int
-#   default:   55
-#
-caption-size = 55
-
-# Padding above caption.
-#
-#   cli:       false
-#   unit:      pixels
-#   type:      int
-#   default:   20
-#
-caption-padding-top = 20
-
-# Padding above caption.
-#
-#   cli:       false
-#   unit:      pixels
-#   type:      int
-#   default:   20
-#
-caption-padding-bottom = 20
-
-# Caption line-spacing.
-#
-#   cli:       false
-#   unit:      pixels
-#   type:      int
-#   default:   5
-#
-caption-line-spacing = 10
