@@ -47,7 +47,7 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
 
     filename_formatted = filename_template.format(**print_settings_dict)
 
-    image_path = f"{filename_formatted}.{CONFIG.cfg.qr_code.format.to_suffix()}"
+    image_path = f"{filename_formatted}{CONFIG.cfg.qr_code.format.to_suffix()}"
     image_path = output_directory / image_path
     image.save(image_path)
     image.close()
