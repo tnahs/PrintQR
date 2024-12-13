@@ -37,6 +37,10 @@ class App:
     NAME_PRINT_SETTINGS_TOML = "print-settings.toml"
 
 
+QR_CODE_VERSION_MIN = 1
+QR_CODE_VERSION_MAX = 40
+
+
 # Enums --------------------------------------------------------------------------------
 
 
@@ -48,10 +52,6 @@ class Delimeter(StrEnum):
 class Encoding(StrEnum):
     TOML = "toml"
     COMPACT = "compact"
-
-    @classmethod
-    def default(cls) -> Encoding:
-        return cls.TOML
 
     @property
     def lexer(self) -> str:
@@ -119,3 +119,4 @@ class ConfigFormat(StrEnum):
 
 class Key:
     DATE = "date"
+    FIT = "fit"

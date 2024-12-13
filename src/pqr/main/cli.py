@@ -112,7 +112,7 @@ arg_ignore_defaults = Option(
 arg_encoding = Option(
     "-e",
     "--encoding",
-    help="Encoding method used for the QR Code's data.",
+    help="Encoding method used for the QR Code data.",
     show_default=False,
 )
 
@@ -124,7 +124,13 @@ arg_add_caption = Option(
 
 arg_add_date = Option(
     "--add-date/--no-date",
-    help="Add the current date into the QR Code's data.",
+    help="Add the current date into the QR Code data.",
+    show_default=False,
+)
+
+arg_with_units = Option(
+    "--with-units/--no-units",
+    help="Add units to values in the QR Code data.",
     show_default=False,
 )
 
@@ -163,6 +169,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     output_directory: Path,
     ignore_defaults: bool,
     encoding: Encoding | None,
+    with_units: bool | None,
     add_caption: bool | None,
     add_date: bool | None,
     date_template: str | None,
@@ -187,6 +194,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
         add_caption if add_caption is not None else CONFIG.cfg.options.add_caption
     )
     add_date = add_date if add_date is not None else CONFIG.cfg.options.add_date
+    with_units = with_units if with_units is not None else CONFIG.cfg.options.with_units
     date_template = date_template or CONFIG.cfg.template.date
     filename_template = filename_template or CONFIG.cfg.template.filename
     caption_templates = caption_templates or (
@@ -200,6 +208,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
         encoding=encoding,
         add_caption=add_caption,
         add_date=add_date,
+        with_units=with_units,
         date_template=date_template,
         filename_template=filename_template,
         caption_templates=caption_templates,
@@ -238,6 +247,10 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
         Encoding | None,
         arg_encoding,
     ] = None,
+    with_units: Annotated[
+        bool | None,
+        arg_with_units,
+    ] = None,
     add_caption: Annotated[
         bool | None,
         arg_add_caption,
@@ -265,6 +278,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
         output_directory,
         ignore_defaults,
         encoding,
+        with_units,
         add_caption,
         add_date,
         date_template,
@@ -283,6 +297,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
         print_settings,
         args.ignore_defaults,
         args.encoding,
+        args.with_units,
         args.add_date,
         args.date_template,
         args.filename_template,
@@ -293,6 +308,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
         print_settings,
         args.add_caption,
         args.encoding,
+        args.with_units,
         args.output_directory,
         args.filename_template,
         args.caption_templates,
@@ -314,6 +330,10 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
     encoding: Annotated[
         Encoding | None,
         arg_encoding,
+    ] = None,
+    with_units: Annotated[
+        bool | None,
+        arg_with_units,
     ] = None,
     add_caption: Annotated[
         bool | None,
@@ -343,6 +363,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
         output_directory,
         ignore_defaults,
         encoding,
+        with_units,
         add_caption,
         add_date,
         date_template,
@@ -372,6 +393,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
         args.ignore_defaults,
         args.encoding,
         args.add_date,
+        args.with_units,
         args.date_template,
         args.filename_template,
         args.caption_templates,
@@ -381,6 +403,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
         print_settings,
         args.add_caption,
         args.encoding,
+        args.with_units,
         args.output_directory,
         args.filename_template,
         args.caption_templates,
@@ -478,6 +501,10 @@ def run_command_generate_from_encoded(  # noqa: PLR0913, PLR0917
         Encoding | None,
         arg_encoding,
     ] = None,
+    with_units: Annotated[
+        bool | None,
+        arg_with_units,
+    ] = None,
     add_caption: Annotated[
         bool | None,
         arg_add_caption,
@@ -505,6 +532,7 @@ def run_command_generate_from_encoded(  # noqa: PLR0913, PLR0917
         output_directory,
         ignore_defaults,
         encoding,
+        with_units,
         add_caption,
         add_date,
         date_template,
@@ -530,6 +558,7 @@ def run_command_generate_from_encoded(  # noqa: PLR0913, PLR0917
         PRINT_SETTINGS,
         args.ignore_defaults,
         args.encoding,
+        args.with_units,
         args.add_date,
         args.date_template,
         args.filename_template,
@@ -539,6 +568,7 @@ def run_command_generate_from_encoded(  # noqa: PLR0913, PLR0917
     qr.generate_and_save_qr_code(
         print_settings,
         args.add_caption,
+        args.with_units,
         args.encoding,
         args.output_directory,
         args.filename_template,

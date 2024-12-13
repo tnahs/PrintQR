@@ -206,6 +206,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0917
     print_settings: PrintSettings,
     ignore_defaults: bool,
     encoding: Encoding,
+    with_units: bool,
     add_date: bool,
     date_template: str,
     filename_template: str,
@@ -214,16 +215,15 @@ def revise_print_settings(  # noqa: PLR0913, PLR0917
     color_style = "cyan"
 
     while True:
-        qr_code_data = print_settings.to_encoded_str(encoding)
+        qr_code_data = print_settings.to_encoded_str(encoding, with_units)
 
         qr_code = qr.generate_qr_code(
             qr_code_data,
+            version=CONFIG.cfg.qr_code.version,
+            error_correction=CONFIG.cfg.qr_code.error_correction.to_const(),
             module_size=CONFIG.cfg.qr_code.module_size,
             border=CONFIG.cfg.qr_code.border,
-            error_correction=CONFIG.cfg.qr_code.error_correction.to_const(),
         )
-
-        qr_code.make()
 
         # Panel: QR Code data ----------------------------------------------------------
 

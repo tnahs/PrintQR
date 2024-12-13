@@ -6,7 +6,7 @@
 
 [options]
 
-# Encoding method used for the QR Code's data.
+# Encoding method used for the QR Code data.
 #
 #   Available options:
 #     "toml"
@@ -19,20 +19,29 @@
 #
 encoding = "compact"
 
+# Add units to values in the QR Code data.
+#
+#   cli:       true
+#   unit:      -
+#   type:      bool
+#   default:   false
+#
+with-units = false
+
 # Add a two-line caption to the QR Code.
 #
 #   cli:       true
 #   unit:      -
-#   type:      str
+#   type:      bool
 #   default:   true
 #
 add-caption = true
 
-# Add the current date into the QR Code's data. See `template.date` for formatting.
+# Add the current date into the QR Code data. See `template.date` for formatting.
 #
 #   cli:       true
 #   unit:      -
-#   type:      str
+#   type:      bool
 #   default:   false
 #
 add-date = false
@@ -277,6 +286,18 @@ executable = ""
 #   default:   "png"
 #
 format = "png"
+
+# The minimum QR Code version to use. Use "fit" to detect the best fit.
+# 
+#   Available options:
+#     "fit"
+#     1...40
+# 
+#   cli:       false
+#   unit:      -
+#   type:      Literal["fit"] | int
+#   default:   "fit"
+version = "fit"
 
 # Maximum image width. Set to 0 to disable maximum width.
 #

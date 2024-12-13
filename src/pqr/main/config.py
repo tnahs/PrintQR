@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import (
     AliasGenerator,
     BaseModel,
     ConfigDict,
     ValidationError,
+    conint,
     field_validator,
 )
 from pydantic_core import InitErrorDetails, PydanticCustomError
@@ -14,7 +16,24 @@ from pydantic_core import InitErrorDetails, PydanticCustomError
 from . import helpers
 from .errors import ConfigReadError, ConfigValidationError
 from .settings import PRINT_SETTINGS, SerializedSettings, Setting
-from .shared import App, Encoding, ErrorCorrection, ImageFormat
+from .shared import (
+    QR_CODE_VERSION_MAX,
+    QR_CODE_VERSION_MIN,
+    App,
+    Encoding,
+    ErrorCorrection,
+    ImageFormat,
+    Key,
+)
+
+
+QrCodeVersion = (
+    conint(
+        ge=QR_CODE_VERSION_MIN,
+        le=QR_CODE_VERSION_MAX,
+    )
+    | Literal[Key.FIT]
+)
 
 
 class BaseConfig(BaseModel):
@@ -28,9 +47,10 @@ class BaseConfig(BaseModel):
 
 
 class Options(BaseConfig):
+    encoding: Encoding
+    with_units: bool
     add_caption: bool
     add_date: bool
-    encoding: Encoding
 
 
 class Template(BaseConfig):
@@ -48,6 +68,7 @@ class QRCode(BaseConfig):
     format: ImageFormat
     max_width: int
     max_height: int
+    version: QrCodeVersion  # pyright: ignore [reportInvalidTypeForm]
     module_size: int
     border: int
     error_correction: ErrorCorrection

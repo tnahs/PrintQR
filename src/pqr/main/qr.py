@@ -15,18 +15,20 @@ from .shared import App, Encoding
 def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
     print_settings: PrintSettings,
     add_caption: bool,
+    with_units: bool,
     encoding: Encoding,
     output_directory: Path,
     filename_template: str,
     caption_templates: tuple[str, str],
 ) -> None:
-    encoded = print_settings.to_encoded_str(encoding)
+    qr_code_data = print_settings.to_encoded_str(encoding, with_units)
 
     qr_code = generate_qr_code(
-        encoded,
+        qr_code_data,
+        version=CONFIG.cfg.qr_code.version,
+        error_correction=CONFIG.cfg.qr_code.error_correction.to_const(),
         module_size=CONFIG.cfg.qr_code.module_size,
         border=CONFIG.cfg.qr_code.border,
-        error_correction=CONFIG.cfg.qr_code.error_correction.to_const(),
     )
 
     image = qr_code.make_image().get_image()
@@ -54,7 +56,7 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
 
     config_path = f"{filename_formatted}.toml"
     config_path = output_directory / config_path
-    config_path.write_text(print_settings.to_encoded_str(Encoding.default()))
+    config_path.write_text(print_settings.dump())
 
     ui.print_panel(
         f"QR Code and TOML config saved to [cyan]{image_path.parent}[/cyan]",
@@ -66,9 +68,10 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
 
 def generate_qr_code(
     data: str,
+    version: int | str,
+    error_correction: int,
     module_size: int,
     border: int,
-    error_correction: int,
 ) -> QRCode:
     qr_code = QRCode(
         box_size=module_size,
@@ -77,6 +80,13 @@ def generate_qr_code(
     )
 
     qr_code.add_data(data)
+
+    if isinstance(version, int):
+        qr_code.version = version
+        qr_code.make()
+    else:
+        qr_code.version = None
+        qr_code.make(fit=True)
 
     return qr_code
 
@@ -130,7 +140,6 @@ def _add_caption_to_image(
         caption_bbox_line_two_width,
     )
 
-    # TODO: Should this be 2x?
     border_thickness = CONFIG.cfg.qr_code.border * CONFIG.cfg.qr_code.module_size
 
     caption_bbox_height = (
@@ -146,6 +155,7 @@ def _add_caption_to_image(
         image.width,
         caption_bbox_width + border_thickness,
     )
+
     image_height = max(
         image_height,
         image.height + caption_bbox_height + border_thickness,

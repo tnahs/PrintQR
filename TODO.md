@@ -2,15 +2,11 @@
 
 ## Improvements
 
-- What's the best way to handle image text fitting?
+- Change text size to be `max-text-size`
+  - Run a loop from `max-text-size` down, until the text width is <= to the image width
 - Allow the user to edit the raw data before generation.
-- Do we want to output with or without the units? e.g. `230` vs `230°C`.
-  - Most, if not all, the units are common/standardized across slicers.
-  - Maybe make this configurable?
 - If the user asks for a value in a filename/caption template but does not
   provide the value, then replace it with `?`.
-- Can we allow the user to use a specific QR Code version?
-  - It should display a warning if the data will not fit.
 - Add a command to drop an `encoded` template in the current directory.
 - Add a command to drop the default `config.toml` into the current directory.
 - Add `--dump` to also dump a `TOML` file in the output directory.

@@ -211,19 +211,22 @@ class PrintSettings:
     def stamp_date(self, date_template: str) -> None:
         self.__date.update(datetime.now().strftime(date_template))
 
-    def to_encoded_str(self, encoding: Encoding) -> str:
+    def to_encoded_str(self, encoding: Encoding, with_units: bool) -> str:
         match encoding:
             case Encoding.COMPACT:
-                return self._encode_to_str_compact(with_units=True)
+                return self._encode_to_str_compact(with_units)
             case _:
-                return self._encode_to_str_toml(
-                    with_units=False,
-                    filter_empty_values=True,
-                )
+                return self._encode_to_str_toml(with_units, filter_empty_values=True)
 
     def to_format_dict(self) -> SerializedSettingValues:
         return self._to_serialized_values_dict(
             with_units=False, filter_empty_values=False
+        )
+
+    def dump(self) -> str:
+        return self._encode_to_str_toml(
+            with_units=False,
+            filter_empty_values=False,
         )
 
     @property
@@ -315,8 +318,8 @@ class PrintSettings:
 
         return tomli_w.dumps(data, indent=2)
 
-    # We dont allow removal of empty values here as this would cause an issue if the
-    # data were to be parsed back into dict/TOML or other structured data.
+    # We don't remove empty values for the 'compact' format as this would cause an issue
+    # if the data were to be parsed back into dict/TOML or other structured data.
     def _encode_to_str_compact(self, with_units: bool = False) -> str:
         data = []
 
@@ -331,7 +334,7 @@ class PrintSettings:
                 continue
 
             value_format_string = (
-                setting.format_string_with_unit if with_units else setting.value
+                setting.format_string_with_unit if with_units else setting.format_string
             )
 
             if setting.compact_name is not None:
