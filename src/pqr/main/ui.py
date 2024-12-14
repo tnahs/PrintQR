@@ -75,19 +75,28 @@ def table(
 # Panel --------------------------------------------------------------------------------
 
 
+#                t  r  b  l
+PADDING_INNER = (1, 3, 1, 3)
+
+#                t  r            b  l
+PADDING_OUTER = (1, len(INDENT), 1, len(INDENT))
+
+
 PANEL_STYLE = {
     "box": HEAVY,
     "border_style": "cyan",
-    "padding": (1, 3),
+    #           t  r  b  l
+    "padding": PADDING_INNER,
     "expand": False,
 }
 
 
 def panel(
     renderable: Any,
+    padding_outer: tuple[int, int, int, int] = PADDING_OUTER,
     pretty: bool = False,
     **kwargs,  # noqa: ANN003
-) -> Padding:
+) -> Panel | Padding:
     if pretty is True:
         renderable = Pretty(renderable, expand_all=True)
 
@@ -104,25 +113,21 @@ def panel(
 
     return Padding(
         panel,
-        # top, right, bottom, left
-        pad=(
-            1,
-            len(INDENT),
-            1,
-            len(INDENT),
-        ),
+        pad=padding_outer,
         expand=False,
     )
 
 
 def print_panel(
     renderable: Any,
+    padding_outer: tuple[int, int, int, int] = PADDING_OUTER,
     pretty: bool = False,
     **kwargs,  # noqa: ANN003
 ) -> None:
     console.print(
         panel(
             renderable,
+            padding_outer,
             pretty,
             **kwargs,
         )

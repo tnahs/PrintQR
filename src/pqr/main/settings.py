@@ -78,6 +78,17 @@ class Setting(BaseModel):
     def update(self, value: Any) -> None:
         self.value = value if value else None
 
+    def clear(self) -> None:
+        match self.type:
+            case t if t is str:
+                self.value = ""
+            case t if t is int:
+                self.value = 0
+            case t if t is float:
+                self.value = 0.0
+            case _:
+                raise TypeError(f"Unsupported type: {self.type}")
+
     @property
     def path(self) -> str:
         return self.build_fully_qualified_path(self.category, self.name)
@@ -187,7 +198,7 @@ class PrintSettings:
 
     def clear(self) -> None:
         for setting in self.iter_settings():
-            setting.value = None
+            setting.clear()
 
     def iter_settings(self) -> Iterator[Setting]:
         yield from self._inner.values()

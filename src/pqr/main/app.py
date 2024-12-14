@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import shutil
 import sys
 from datetime import datetime
+from pathlib import Path
 
 from rich.box import HEAVY
 from rich.columns import Columns
@@ -30,37 +30,60 @@ def load_config(user: bool) -> None:
         sys.exit(-1)
 
 
-def create_user_config(force: bool = False) -> None:
+def save_print_settings_toml(
+    destination: Path,
+    print_settings: PrintSettings,
+    force: bool = False,
+) -> None:
     style1 = "cyan"
     style2 = "yellow"
 
-    text_user_files = helpers.format_path(App.PATH_USER_DATA)
-    text_user_files = f"[{style2}]{text_user_files}[/{style2}]"
+    destination = destination.resolve()
+
+    text_destination = f"[{style2}]{helpers.format_path(destination)}[/{style2}]"
+    text_filename = f"[{style2}]{destination.name}[/{style2}]"
 
     ui.print_panel(
-        f"[{style1}]Initializing user config file in {text_user_files}...[/{style1}]",
+        f"[{style1}]Creating {text_filename} in {text_destination}...[/{style1}]",
+        #              t  r            b  l
+        padding_outer=(1, len(INDENT), 0, len(INDENT)),
     )
 
-    if not App.PATH_USER_DATA.exists():
-        console.print(f"{INDENT}Created directory {text_user_files}.")
-
-        App.PATH_USER_DATA.mkdir(parents=True)
-
-    source = ConfigManager.DEFAULT_LOCATION
-    destination = App.PATH_USER_DATA / source.name
-
-    text_destination = f"[{style2}]{destination.name}[/{style2}]"
-
-    if destination.exists() and not force:
+    if destination.exists() and force is False:
         console.print(
-            f"{INDENT}[red]Warning:[/red] File {text_destination} exists. Skipping!"
+            f"{INDENT * 2}[red]Warning:[/red] File {text_filename} exists. Skipping!"
         )
-
         return
 
-    shutil.copy(
+    destination.write_text(print_settings.dump())
+
+
+def save_config_toml(
+    destination: Path = App.PATH_USER_DATA,
+    create_destination: bool = True,
+    force: bool = False,
+) -> None:
+    style1 = "cyan"
+    style2 = "yellow"
+
+    source = ConfigManager.DEFAULT_LOCATION
+    destination = destination.resolve()
+
+    config_toml = destination / source.name
+
+    text_destination = f"[{style2}]{helpers.format_path(destination)}[/{style2}]"
+
+    ui.print_panel(
+        f"[{style1}]Initializing user config file in {text_destination}...[/{style1}]",
+        #              t  r            b  l
+        padding_outer=(1, len(INDENT), 0, len(INDENT)),
+    )
+
+    helpers.copy_file(
         source,  # pyright: ignore [reportArgumentType, reportCallIssue]
         destination,
+        create_destination,
+        force,
     )
 
     # Build Config Header --------------------------------------------------------------
@@ -90,24 +113,20 @@ def create_user_config(force: bool = False) -> None:
         [f"{comment_prefix}{line}" for line in panel_config_header.splitlines()]
     )
 
-    # ----------------------------------------------------------------------------------
-
-    destination.write_text(
+    config_toml.write_text(
         "".join(
             [
-                f"{comment_prefix}{helpers.format_path(destination)}",
+                f"{comment_prefix}{helpers.format_path(config_toml)}",
                 f"\n{comment_prefix}",
                 f"\n{panel_config_header}",
                 "\n",
                 "\n",
                 "\n",
                 "\n",
-                f"{destination.read_text().strip()}",
+                f"{config_toml.read_text().strip()}",
             ]
         )
     )
-
-    console.print(f"{INDENT}Created file {text_destination}.")
 
 
 def is_user_config_setup() -> bool:
@@ -133,7 +152,7 @@ def prompt_date(date_template: str, date: str | None = None) -> str:
     # Initially we need to get the date template string from the user...
     if date is None:
         date = Prompt.ask(
-            prompt=f"{INDENT * 2}Date template string",
+            prompt=f"{INDENT * 3}Date template string",
             default=date_template,
         )
         date = datetime.now().strftime(date)
@@ -141,7 +160,7 @@ def prompt_date(date_template: str, date: str | None = None) -> str:
     else:
         # ...on a revising pass, we allow the user to edit the formatted date.
         date = Prompt.ask(
-            prompt=f"{INDENT * 2}Current date",
+            prompt=f"{INDENT * 3}Current date",
             default=date,
         )
 
@@ -165,7 +184,7 @@ def prompt_print_settings(
             new_line = "" if first_line is True else "\n"
 
             console.print(
-                f"{new_line}{INDENT}[magenta]{category.capitalize()} Settings[/magenta]"
+                f"{new_line}{INDENT * 2}[magenta]{category.capitalize()} Settings[/magenta]"
             )
 
             first_line = False
@@ -188,7 +207,7 @@ def prompt_print_settings(
             case _:
                 prompt = Prompt
 
-        prompt_text = f"{INDENT * 2}{setting.description_formatted()}"
+        prompt_text = f"{INDENT * 3}{setting.description_formatted()}"
         default = setting.value if (revising_pass or ignore_defaults is False) else None
 
         reply = prompt.ask(prompt_text, default=default)
@@ -249,7 +268,8 @@ def revise_print_settings(  # noqa: PLR0913, PLR0917
             syntax_qr_code_data,
             title="Encoded Data",
             subtitle=qr_code_data_stats,
-            padding=(2, 6),
+            #              t  r  b  l
+            padding_outer=(1, 0, 1, 1),
         )
 
         # Panel/Table: QR Code ASCII preview -------------------------------------------
@@ -277,13 +297,10 @@ def revise_print_settings(  # noqa: PLR0913, PLR0917
             table_qr_code,
             title=filename,
             subtitle=qr_code_stats,
-            # top, right, bottom, left
-            padding=(
-                2,
-                6,
-                1,
-                6,
-            ),
+            #        t  r  b  l
+            padding=(2, 6, 0, 6),
+            #              t  r  b  l
+            padding_outer=(1, 1, 1, len(INDENT)),
         )
 
         # ------------------------------------------------------------------------------
@@ -305,7 +322,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0917
         # ------------------------------------------------------------------------------
 
         reply = Prompt.ask(
-            f"{INDENT}[magenta]Continue [Cc] or Revise [Rr][/magenta]",
+            f"{INDENT * 2}[magenta]Continue [Cc] or Revise [Rr][/magenta]",
             choices=["C", "R"],
             show_choices=False,
             case_sensitive=False,

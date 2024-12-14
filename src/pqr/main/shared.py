@@ -37,6 +37,8 @@ class App:
     NAME_HISTORY_TOML = "history.toml"
     NAME_PRINT_SETTINGS_TOML = "print-settings.toml"
 
+    DEFAULT_EDITOR = "vi"
+
 
 QR_CODE_VERSION_MIN = 1
 QR_CODE_VERSION_MAX = 40

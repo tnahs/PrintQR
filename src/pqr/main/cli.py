@@ -21,13 +21,21 @@ from .shared import App, Delimeter, Encoding, Key, console
 from .tables import TABLE_TEMPLATES_DATE, TABLE_TEMPLATES_FIELDS
 
 
-cli = Typer(
-    add_completion=False,
-    no_args_is_help=True,
-    context_settings={
-        "help_option_names": ["-h", "--help"],
+TYPER_CONFIG = {
+    "add_completion": False,
+    "no_args_is_help": True,
+    "rich_markup_mode": "rich",
+    "context_settings": {
+        "help_option_names": [
+            "-h",
+            "--help",
+        ],
     },
-    rich_markup_mode="rich",
+}
+
+
+cli = Typer(
+    **TYPER_CONFIG,  # pyright: ignore [reportArgumentType]
     help="Generate QR Codes for 3d prints",
 )
 
@@ -95,67 +103,103 @@ def validate_date_template(value: str | None) -> str | None:
 # Shared Args --------------------------------------------------------------------------
 
 
-arg_output_directory = Option(
-    "-o",
-    "--output",
-    help="File output directory.",
-    show_default=False,
-)
+arg_output_directory = Annotated[
+    Path,
+    Option(
+        "-o",
+        "--output",
+        help="File output directory.",
+        show_default=False,
+    ),
+]
 
-arg_ignore_defaults = Option(
-    "-d",
-    "--ignore-defaults",
-    help=f"Ignore default print settings in [green]{App.NAME_CONFIG_TOML}[/green].",
-    show_default=False,
-)
+arg_ignore_defaults = Annotated[
+    bool,
+    Option(
+        "-d",
+        "--ignore-defaults",
+        help=f"Ignore default print settings in [green]{App.NAME_CONFIG_TOML}[/green].",
+        show_default=False,
+    ),
+]
 
-arg_encoding = Option(
-    "-e",
-    "--encoding",
-    help="Encoding method used for the QR Code data.",
-    show_default=False,
-)
+arg_encoding = Annotated[
+    Encoding | None,
+    Option(
+        "-e",
+        "--encoding",
+        help="Encoding method used for the QR Code data.",
+        show_default=False,
+    ),
+]
 
-arg_add_caption = Option(
-    "--add-caption/--no-caption",
-    help="Add a two-line caption to the QR Code.",
-    show_default=False,
-)
+arg_add_caption = Annotated[
+    bool | None,
+    Option(
+        "--add-caption/--no-caption",
+        help="Add a two-line caption to the QR Code.",
+        show_default=False,
+    ),
+]
 
-arg_add_date = Option(
-    "--add-date/--no-date",
-    help="Add the current date into the QR Code data.",
-    show_default=False,
-)
+arg_add_date = Annotated[
+    bool | None,
+    Option(
+        "--add-date/--no-date",
+        help="Add the current date into the QR Code data.",
+        show_default=False,
+    ),
+]
 
-arg_with_units = Option(
-    "--with-units/--no-units",
-    help="Add units to values in the QR Code data.",
-    show_default=False,
-)
+arg_with_units = Annotated[
+    bool | None,
+    Option(
+        "--with-units/--no-units",
+        help="Add units to values in the QR Code data.",
+        show_default=False,
+    ),
+]
 
-arg_date_template = Option(
-    "--date-template",
-    help="Template used to generate the date. Uses strftime [yellow]strftime[/yellow].",
-    show_default=False,
-    callback=validate_date_template,
-)
+arg_date_template = Annotated[
+    str | None,
+    Option(
+        "--date-template",
+        help="Template used to generate the date. Uses strftime [yellow]strftime[/yellow].",
+        show_default=False,
+        callback=validate_date_template,
+    ),
+]
 
-arg_filename_template = Option(
-    "--filename-template",
-    help="Template used to generate image, TOML and GCode filenames.",
-    show_default=False,
-    callback=validate_template_string,
-)
+arg_filename_template = Annotated[
+    str | None,
+    Option(
+        "--filename-template",
+        help="Template used to generate image, TOML and GCode filenames.",
+        show_default=False,
+        callback=validate_template_string,
+    ),
+]
 
-arg_caption_templates = Option(
-    "--caption-template",
-    min=2,
-    max=2,
-    help="Templates used to generate the caption. As: [yellow]'{line-one} {line-two}'[/yellow]",
-    show_default=False,
-    callback=validate_template_string,
-)
+arg_caption_templates = Annotated[
+    tuple[str, str] | None,
+    Option(
+        "--caption-template",
+        min=2,
+        max=2,
+        help="Templates used to generate the caption. As: [yellow]'{line-one} {line-two}'[/yellow]",
+        show_default=False,
+        callback=validate_template_string,
+    ),
+]
+
+arg_force = Annotated[
+    bool,
+    Option(
+        "--force",
+        help="Overwrite existing file.",
+        show_default=False,
+    ),
+]
 
 
 # NOTE: Until theres a better way to share command level args this is the simplest way
@@ -177,7 +221,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     caption_templates: tuple[str, str] | None,
 ) -> SimpleNamespace:
     if not app.is_user_config_setup():
-        app.create_user_config()
+        app.save_config_toml()
 
     if CONFIG.debug is False:
         console.clear()
@@ -235,42 +279,15 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     rich_help_panel="Generate",
 )
 def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
-    output_directory: Annotated[
-        Path,
-        arg_output_directory,
-    ],
-    ignore_defaults: Annotated[
-        bool,
-        arg_ignore_defaults,
-    ] = False,
-    encoding: Annotated[
-        Encoding | None,
-        arg_encoding,
-    ] = None,
-    with_units: Annotated[
-        bool | None,
-        arg_with_units,
-    ] = None,
-    add_caption: Annotated[
-        bool | None,
-        arg_add_caption,
-    ] = None,
-    add_date: Annotated[
-        bool | None,
-        arg_add_date,
-    ] = None,
-    date_template: Annotated[
-        str | None,
-        arg_date_template,
-    ] = None,
-    filename_template: Annotated[
-        str | None,
-        arg_filename_template,
-    ] = None,
-    caption_templates: Annotated[
-        tuple[str, str] | None,
-        arg_caption_templates,
-    ] = None,
+    output_directory: arg_output_directory,
+    ignore_defaults: arg_ignore_defaults = False,
+    encoding: arg_encoding = None,
+    with_units: arg_with_units = None,
+    add_caption: arg_add_caption = None,
+    add_date: arg_add_date = None,
+    date_template: arg_date_template = None,
+    filename_template: arg_filename_template = None,
+    caption_templates: arg_caption_templates = None,
 ) -> None:
     """Generate a QR Code from commandline [green]prompts[/green]."""
 
@@ -319,42 +336,15 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
 
 
 def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
-    output_directory: Annotated[
-        Path,
-        arg_output_directory,
-    ],
-    ignore_defaults: Annotated[
-        bool,
-        arg_ignore_defaults,
-    ] = False,
-    encoding: Annotated[
-        Encoding | None,
-        arg_encoding,
-    ] = None,
-    with_units: Annotated[
-        bool | None,
-        arg_with_units,
-    ] = None,
-    add_caption: Annotated[
-        bool | None,
-        arg_add_caption,
-    ] = None,
-    add_date: Annotated[
-        bool | None,
-        arg_add_date,
-    ] = None,
-    date_template: Annotated[
-        str | None,
-        arg_date_template,
-    ] = None,
-    filename_template: Annotated[
-        str | None,
-        arg_filename_template,
-    ] = None,
-    caption_templates: Annotated[
-        tuple[str, str] | None,
-        arg_caption_templates,
-    ] = None,
+    output_directory: arg_output_directory,
+    ignore_defaults: arg_ignore_defaults = False,
+    encoding: arg_encoding = None,
+    with_units: arg_with_units = None,
+    add_caption: arg_add_caption = None,
+    add_date: arg_add_date = None,
+    date_template: arg_date_template = None,
+    filename_template: arg_filename_template = None,
+    caption_templates: arg_caption_templates = None,
     **print_settings,  # noqa: ANN003
 ) -> None:
     """Generate a QR Code from commandline [green]args[/green]."""
@@ -470,63 +460,36 @@ cli.command(
 )(_wrapper_run_command_generate_from_args())
 
 
-# Command: encoded ---------------------------------------------------------------------
+# Command: template --------------------------------------------------------------------
 
 
 @cli.command(
-    name="encoded",
+    name="template",
     no_args_is_help=True,
-    short_help="...from [green]TOML encoded[/green] data.",
+    short_help="...from a [green]TOML template[/green].",
     rich_help_panel="Generate",
 )
-def run_command_generate_from_encoded(  # noqa: PLR0913, PLR0917
+def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
     path: Annotated[
         Path,
         Option(
             "-i",
             "--input",
-            help="Path to a file with [green]TOML encoded[/green] data.",
+            help="Path to a [green]TOML template[/green].",
             show_default=False,
         ),
     ],
-    output_directory: Annotated[
-        Path,
-        arg_output_directory,
-    ],
-    ignore_defaults: Annotated[
-        bool,
-        arg_ignore_defaults,
-    ] = False,
-    encoding: Annotated[
-        Encoding | None,
-        arg_encoding,
-    ] = None,
-    with_units: Annotated[
-        bool | None,
-        arg_with_units,
-    ] = None,
-    add_caption: Annotated[
-        bool | None,
-        arg_add_caption,
-    ] = None,
-    add_date: Annotated[
-        bool | None,
-        arg_add_date,
-    ] = None,
-    date_template: Annotated[
-        str | None,
-        arg_date_template,
-    ] = None,
-    filename_template: Annotated[
-        str | None,
-        arg_filename_template,
-    ] = None,
-    caption_templates: Annotated[
-        tuple[str, str] | None,
-        arg_caption_templates,
-    ] = None,
+    output_directory: arg_output_directory,
+    ignore_defaults: arg_ignore_defaults = False,
+    encoding: arg_encoding = None,
+    with_units: arg_with_units = None,
+    add_caption: arg_add_caption = None,
+    add_date: arg_add_date = None,
+    date_template: arg_date_template = None,
+    filename_template: arg_filename_template = None,
+    caption_templates: arg_caption_templates = None,
 ) -> None:
-    """Generate a QR Code from [green]TOML encoded[/green] data."""
+    """Generate a QR Code from a [green]TOML template[/green]."""
 
     args = process_shared_args(
         output_directory,
@@ -586,42 +549,15 @@ def run_command_generate_from_encoded(  # noqa: PLR0913, PLR0917
     rich_help_panel="Generate",
 )
 def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
-    output_directory: Annotated[
-        Path,
-        arg_output_directory,
-    ],
-    ignore_defaults: Annotated[
-        bool,
-        arg_ignore_defaults,
-    ] = False,
-    encoding: Annotated[
-        Encoding | None,
-        arg_encoding,
-    ] = None,
-    with_units: Annotated[
-        bool | None,
-        arg_with_units,
-    ] = None,
-    add_caption: Annotated[
-        bool | None,
-        arg_add_caption,
-    ] = None,
-    add_date: Annotated[
-        bool | None,
-        arg_add_date,
-    ] = None,
-    date_template: Annotated[
-        str | None,
-        arg_date_template,
-    ] = None,
-    filename_template: Annotated[
-        str | None,
-        arg_filename_template,
-    ] = None,
-    caption_templates: Annotated[
-        tuple[str, str] | None,
-        arg_caption_templates,
-    ] = None,
+    output_directory: arg_output_directory,
+    ignore_defaults: arg_ignore_defaults = False,
+    encoding: arg_encoding = None,
+    with_units: arg_with_units = None,
+    add_caption: arg_add_caption = None,
+    add_date: arg_add_date = None,
+    date_template: arg_date_template = None,
+    filename_template: arg_filename_template = None,
+    caption_templates: arg_caption_templates = None,
 ) -> None:
     """Revise the [green]last generated QR Code[/green]."""
 
@@ -674,26 +610,63 @@ def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
     )
 
 
-# Command: init ------------------------------------------------------------------------
+# Sub-command: init --------------------------------------------------------------------
+
+cli_init = Typer(
+    **TYPER_CONFIG,  # pyright: ignore [reportArgumentType]
+    help="Initialize config/template.",
+)
+
+cli.add_typer(cli_init, name="init")
 
 
-@cli.command(
-    name="init",
-    short_help="Create user config file.",
+@cli_init.command(
+    name="app",
+    short_help=(
+        f"Create default [green]{App.NAME_CONFIG_TOML}[/green] in "
+        f"[yellow]{helpers.format_path(App.PATH_USER_DATA)}[/yellow]."
+    ),
     rich_help_panel="Application",
 )
-def run_command_init(
-    force: Annotated[
-        bool,
-        Option(
-            "--force",
-            help="Overwrite existing file.",
-        ),
-    ] = False,
-) -> None:
-    """Create user config file."""
+def init_app_command(force: arg_force = False) -> None:
+    app.save_config_toml(force=force)
 
-    app.create_user_config(force)
+
+@cli_init.command(
+    name="config",
+    short_help=(
+        f"Create default [green]{App.NAME_CONFIG_TOML}[/green] "
+        "in the current directory."
+    ),
+    rich_help_panel="Application",
+)
+def init_template_config(force: arg_force = False) -> None:
+    app.save_config_toml(
+        destination=Path.cwd(),
+        create_destination=False,
+        force=force,
+    )
+
+
+@cli_init.command(
+    name="template",
+    short_help=(
+        f"Create [green]{App.NAME_PRINT_SETTINGS_TOML}[/green] "
+        "file in the current directory."
+    ),
+    rich_help_panel="Application",
+)
+def init_template_command(
+    force: arg_force = False,
+) -> None:
+    # Clear out the print settings so we have a blank output.
+    PRINT_SETTINGS.clear()
+
+    app.save_print_settings_toml(
+        destination=Path.cwd() / App.NAME_PRINT_SETTINGS_TOML,
+        print_settings=PRINT_SETTINGS,
+        force=force,
+    )
 
 
 # Command: print -----------------------------------------------------------------------
@@ -742,6 +715,6 @@ def edit() -> None:
     """Edit user config file."""
 
     if not app.is_user_config_setup():
-        app.create_user_config()
+        app.save_config_toml()
 
     helpers.edit_file(App.PATH_USER_DATA / App.NAME_CONFIG_TOML)

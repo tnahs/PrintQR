@@ -223,7 +223,7 @@ category = "slicer"
 # values passed into the field. The value defined here
 # is passed to `eval` to retrieve the type.
 #
-# The most common values would be:
+# Must be one of:
 #
 #   'str'
 #   'int'

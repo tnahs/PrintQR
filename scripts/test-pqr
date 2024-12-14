@@ -47,7 +47,7 @@ function from_prompts {
         --encoding "compact"                         \
         --add-caption                                \
         --add-date                                   \
-        --date-template "%Y.%m.%d"                   \
+        --date-template "%Y-%m"                      \
         --filename-template "{filament-name}-{date}" \
         --caption-template "{filament-name}" "{date}"
 }
@@ -60,7 +60,7 @@ function from_args {
         --encoding "compact"                              \
         --add-caption                                     \
         --add-date                                        \
-        --date-template "%Y.%m.%d"                        \
+        --date-template "%Y-%m"                           \
         --filename-template "{filament-name}-{date}"      \
         --caption-template "{filament-name}" "{date}"     \
                                                           \
@@ -86,16 +86,16 @@ function from_args {
 }
 
 
-function from_encoded {
-    uv run pqr $debug encoded                             \
-                                                          \
-        --output "$tmp"                                   \
-        --input "${root}/src/pqr/tests/encoded-data.toml" \
-        --encoding "compact"                              \
-        --add-caption                                     \
-        --add-date                                        \
-        --date-template "%Y.%m.%d"                        \
-        --filename-template "{filament-name}-{date}"      \
+function from_template {
+    uv run pqr $debug template                             \
+                                                           \
+        --output "$tmp"                                    \
+        --input "${root}/src/pqr/tests/template-data.toml" \
+        --encoding "compact"                               \
+        --add-caption                                      \
+        --add-date                                         \
+        --date-template "%Y-%m"                            \
+        --filename-template "{filament-name}-{date}"       \
         --caption-template "{filament-name}" "{date}"
 }
 
@@ -127,7 +127,7 @@ function main {
             ;;
         "encoded")
             prepare_test
-            from_encoded
+            from_template
             ;;
         *)
             echo "Error: Invalid command '$1'"
