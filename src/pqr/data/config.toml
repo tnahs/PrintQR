@@ -172,7 +172,7 @@ format = "png"
 # 
 #   cli:       false
 #   unit:      -
-#   type:      Literal["fit"] | int
+#   type:      str | int
 #   default:   "fit"
 version = "fit"
 

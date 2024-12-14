@@ -212,10 +212,10 @@ name = "extrusion-width"
 
 # Must be one of:
 #
-#   'filament'
-#   'printer'
-#   'slicer'
-#   'misc'S
+#   "filament"
+#   "printer"
+#   "slicer"
+#   "misc"
 #
 category = "slicer"
 
@@ -225,9 +225,9 @@ category = "slicer"
 #
 # Must be one of:
 #
-#   'str'
-#   'int'
-#   'float'
+#   "str"
+#   "int"
+#   "float"
 #
 type = "float"
 
