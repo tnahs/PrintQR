@@ -108,8 +108,8 @@ class Category(StrEnum):
         return [f"{variant.value}-name" for variant in cls]
 
     @property
-    def placeholder(self) -> list[str]:
-        return [f"[{self.value}]"]
+    def placeholder(self) -> str:
+        return f"[{self.value}]"
 
 
 class ConfigFormat(StrEnum):
