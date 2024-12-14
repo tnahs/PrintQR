@@ -16,6 +16,8 @@
 
 ### v0.2.0
 
+- Generate QR Code from `3mf` file.
+  - Add `--generate-gcode` to also slice and generate the GCode file.
 - Format `print-time`, so it parses out `hh:mm` or `##h##m`
   - This would require:
     - Implement `list` as a `Setting.type`
