@@ -192,9 +192,9 @@ def prompt_print_settings(
         # Special handling for the date.
         if setting.name == Key.DATE:
             if add_date is True:
-                setting.value = prompt_date(
-                    date_template=date_template,
-                    date=setting.value,
+                print_settings.date = prompt_date(
+                    date_template,
+                    print_settings.date.value or None,  # pyright: ignore [reportArgumentType]
                 )
 
             continue
@@ -211,7 +211,7 @@ def prompt_print_settings(
 
         match (revising_pass, ignore_defaults):
             case (True, False):
-                default = setting.value if setting.value else None
+                default = setting.value or None
             case _:
                 default = None
 

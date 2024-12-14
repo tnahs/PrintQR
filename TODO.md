@@ -4,6 +4,9 @@
 
 ### v0.1.0
 
+- Remove `date` from template.
+- Revisit `Setting._value`.
+  - Do we still nee to convert all internal values to `None`?
 - Replace lists of arg parameters with an `InputArgs` object.
   - We can move the contents of `process_shared_args` into the `__init__`.
 - Add `--dump-toml/--no-dump-toml` to toggle dumping a `TOML` file.

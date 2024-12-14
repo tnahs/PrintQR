@@ -5,7 +5,6 @@ from collections.abc import Iterator
 from datetime import datetime
 from typing import Annotated, Any, Self
 
-from rich import console
 import tomli_w
 from pydantic import (
     AliasGenerator,
@@ -18,7 +17,7 @@ from pydantic import (
 
 from . import helpers
 from .errors import InternalError
-from .shared import App, Category, Delimeter, Encoding, Key, Unit, console
+from .shared import App, Category, Delimeter, Encoding, Key, Unit
 
 
 def _preprocess_type(value: str) -> type[Any]:
@@ -55,7 +54,7 @@ class Setting(BaseModel):
     ] = None
 
     # The setting's value. Any falsy types will be converted to `None`.
-    value: Annotated[
+    _value: Annotated[
         Any,
         BeforeValidator(_preprocess_none_type),
     ] = None
@@ -84,16 +83,16 @@ class Setting(BaseModel):
             self.clear()
             return
 
-        self.value = value
+        self._value = value
 
     def clear(self) -> None:
         match self.type:
             case t if t is str:
-                self.value = ""
+                self._value = ""
             case t if t is int:
-                self.value = 0
+                self._value = 0
             case t if t is float:
-                self.value = 0.0
+                self._value = 0.0
             case _:
                 raise TypeError(f"Unsupported type: {self.type}")
 
@@ -112,6 +111,21 @@ class Setting(BaseModel):
     @property
     def format_string_with_unit(self) -> str:
         return f"{{{self.path}}}{self.unit.value}" if self.unit else f"{{{self.path}}}"
+
+    @property
+    def value(self) -> Any:
+        if self._value:
+            return self._value
+
+        match self.type:
+            case t if t is str:
+                return ""
+            case t if t is int:
+                return 0
+            case t if t is float:
+                return 0.0
+            case _:
+                raise TypeError(f"Unsupported type: {self.type}")
 
     @property
     def value_with_unit(self) -> str:
@@ -169,12 +183,12 @@ class Setting(BaseModel):
 
     @model_validator(mode="after")
     def _validate_value_type(self) -> Self:
-        if self.value is None:
+        if self._value is None:
             return self
 
-        if not isinstance(self.value, self.type):
+        if not isinstance(self._value, self.type):
             raise ValueError(
-                f"Value '{self.value}' must be of type '{self.type.__name__}.'"
+                f"Value '{self._value}' must be of type '{self.type.__name__}.'"
             )
 
         return self
@@ -208,6 +222,10 @@ class PrintSettings:
         for setting in self.iter_settings():
             setting.clear()
 
+    def prepare(self) -> None:
+        for setting in self.iter_settings():
+            setting.clear()
+
     def iter_settings(self) -> Iterator[Setting]:
         yield from self._inner.values()
 
@@ -227,6 +245,14 @@ class PrintSettings:
 
                 setting.update(value)
 
+    @property
+    def date(self) -> Setting:
+        return self.__date
+
+    @date.setter
+    def date(self, value: str) -> None:
+        self.__date.update(value)
+
     def stamp_date(self, date_template: str) -> None:
         self.__date.update(datetime.now().strftime(date_template))
 
@@ -238,15 +264,20 @@ class PrintSettings:
                 return self._encode_to_str_toml(with_units, filter_empty_values=True)
 
     def to_format_dict(self) -> SerializedSettingValues:
-        data = self._to_serialized_values_dict(
-            with_units=False, filter_empty_values=False
-        )
+        data = {}
 
-        return {
-            # Replace any falsy values with "?"
-            key: value if value else "?"
-            for key, value in data.items()
-        }
+        for setting in self.iter_settings():
+            # Replace any falsy values with "?".
+            value = setting.value or "?"
+
+            # Special handling for the date. This allows the user to use either `date`
+            # or `misc-date` when defining formatting strings.
+            if setting.name == Key.DATE:
+                data[Key.DATE] = value
+
+            data[setting.path] = value
+
+        return data
 
     def dump(self) -> str:
         return self._encode_to_str_toml(
@@ -304,28 +335,6 @@ class PrintSettings:
             filtered[category] = settings
 
         return dict(filtered)
-
-    def _to_serialized_values_dict(
-        self,
-        with_units: bool = False,
-        filter_empty_values: bool = False,
-    ) -> SerializedSettingValues:
-        data = {}
-
-        for setting in self.iter_settings():
-            if not setting.value and filter_empty_values is True:
-                continue
-
-            value = setting.value_with_unit if with_units else setting.value
-
-            # Special handling for the date. This allows the user to use either `date`
-            # or `misc-date` when defining formatting strings.
-            if setting.name == Key.DATE:
-                data[Key.DATE] = value
-
-            data[setting.path] = value
-
-        return data
 
     def _encode_to_str_toml(
         self,
