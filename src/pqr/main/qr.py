@@ -10,6 +10,7 @@ from . import ui
 from .config import CONFIG
 from .settings import PrintSettings
 from .shared import App, Encoding
+from .ui import INDENT
 
 
 def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
@@ -63,6 +64,8 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
 
     ui.print_panel(
         f"QR Code and TOML config saved to [cyan]{image_path.parent}[/cyan]",
+        #              t  r            b  l
+        padding_outer=(1, len(INDENT), 0, len(INDENT)),
     )
 
     with Image.open(image_path) as img:
@@ -219,6 +222,8 @@ def _get_font_size(
                     f"to [red]{font_size}[/red] to fit the caption text.",
                     title="Warning",
                     border_style="red",
+                    #              t  r            b  l
+                    padding_outer=(1, len(INDENT), 0, len(INDENT)),
                 )
 
             return font_size
