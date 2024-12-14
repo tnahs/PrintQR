@@ -208,12 +208,14 @@ def prompt_print_settings(
                 prompt = Prompt
 
         prompt_text = f"{INDENT * 3}{setting.description_formatted()}"
-        default = setting.value if (revising_pass or ignore_defaults is False) else None
+
+        match (revising_pass, ignore_defaults):
+            case (True, False):
+                default = setting.value if setting.value else None
+            case _:
+                default = None
 
         reply = prompt.ask(prompt_text, default=default)
-
-        if isinstance(reply, str):
-            reply = reply.strip()
 
         setting.update(reply)
 

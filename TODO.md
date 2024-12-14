@@ -9,8 +9,6 @@
   - It should default to `Path.cwd()`
 - Add config option to "slugify" the filename.
 - Allow the user to edit the raw data before generation.
-- If the user asks for a value in a filename/caption template but does not
-  provide the value, then replace it with `?`.
 - Add help text that all `Options` fallback to `config.toml`
 - Look into different pixel fonts.
 - Add `confirm-all` flag to say yes to any confirmations.
@@ -20,6 +18,7 @@
 
 ## Chores
 
+- Sort out default `Padding` - `padding_outer`
 - Make sure all relevant config options are available in the right places.
 - Square away the usage of `-` and `_` / `name` and `path`.
   - `name_internal` - uses `_`

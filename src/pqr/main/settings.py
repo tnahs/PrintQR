@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from datetime import datetime
 from typing import Annotated, Any, Self
 
+from rich import console
 import tomli_w
 from pydantic import (
     AliasGenerator,
@@ -17,7 +18,7 @@ from pydantic import (
 
 from . import helpers
 from .errors import InternalError
-from .shared import App, Category, Delimeter, Encoding, Key, Unit
+from .shared import App, Category, Delimeter, Encoding, Key, Unit, console
 
 
 def _preprocess_type(value: str) -> type[Any]:
@@ -76,7 +77,14 @@ class Setting(BaseModel):
     )
 
     def update(self, value: Any) -> None:
-        self.value = value if value else None
+        if isinstance(value, str):
+            value = value.strip()
+
+        if not value:
+            self.clear()
+            return
+
+        self.value = value
 
     def clear(self) -> None:
         match self.type:
@@ -230,9 +238,15 @@ class PrintSettings:
                 return self._encode_to_str_toml(with_units, filter_empty_values=True)
 
     def to_format_dict(self) -> SerializedSettingValues:
-        return self._to_serialized_values_dict(
+        data = self._to_serialized_values_dict(
             with_units=False, filter_empty_values=False
         )
+
+        return {
+            # Replace any falsy values with "?"
+            key: value if value else "?"
+            for key, value in data.items()
+        }
 
     def dump(self) -> str:
         return self._encode_to_str_toml(
@@ -321,11 +335,14 @@ class PrintSettings:
         data = defaultdict(dict)
 
         for category, settings in self._to_dict(filter_empty_values).items():
-            value_property = "value_with_unit" if with_units else "value"
-            data[category] = {
-                name: getattr(setting, value_property)
-                for name, setting in settings.items()
-            }
+            category_settings = {}
+
+            for name, setting in settings.items():
+                category_settings[name] = (
+                    setting.value_with_unit if with_units else setting.value
+                )
+
+            data[category] = category_settings
 
         return tomli_w.dumps(data, indent=2)
 
