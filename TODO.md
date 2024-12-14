@@ -1,23 +1,31 @@
 # TODO
 
-## Improvements
+## Features/Improvements
 
-- Add `--dump` to also dump a `TOML` file in the output directory.
-  - Right now it is automatically done for every run.
+### v0.1.0
+
+- Replace lists of arg parameters with an `InputArgs` object.
+  - We can move the contents of `process_shared_args` into the `__init__`.
+- Add `--dump-toml/--no-dump-toml` to toggle dumping a `TOML` file.
   - Add to `config.toml` too.
 - Make `--output` optional.
   - It should default to `Path.cwd()`
-- Add config option to "slugify" the filename.
-- Allow the user to edit the raw data before generation.
-- Add help text that all `Options` fallback to `config.toml`
-- Look into different pixel fonts.
-- Add `confirm-all` flag to say yes to any confirmations.
+- Add `--confirm-all` flag to say yes to any confirmations.
   - This would just skip the revise pass.
+- Add config option to "slugify" the filename.
+
+### v0.2.0
+
 - Format `print-time`, so it parses out `hh:mm` or `##h##m`
-  - This would require us to define a new field in `print-settings.toml` called `format`
+  - This would require:
+    - Implement `list` as a `Setting.type`
+    - Define a new field in `print-settings.toml` called `format`
+- Allow the user to edit the raw data before generation.
+- User-defined fonts.
 
 ## Chores
 
+- Add help text that all `Options` fallback to `config.toml`
 - Sort out default `Padding` - `padding_outer`
 - Make sure all relevant config options are available in the right places.
 - Square away the usage of `-` and `_` / `name` and `path`.
