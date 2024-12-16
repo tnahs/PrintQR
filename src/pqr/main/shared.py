@@ -7,7 +7,10 @@ from importlib import metadata, resources
 from pathlib import Path
 
 import qrcode.constants
+from pygments.lexer import Lexer
 from rich.console import Console
+
+from .lexer import CompactLexer
 
 
 # Console ----------------------------------------------------------------------------
@@ -88,12 +91,12 @@ class Encoding(StrEnum):
     COMPACT = "compact"
 
     @property
-    def lexer(self) -> str:
+    def lexer(self) -> str | Lexer:
         match self:
             case Encoding.TOML:
                 return "toml"
             case _:
-                return "text"
+                return CompactLexer()
 
 
 class Delimeter(StrEnum):
