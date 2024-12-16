@@ -123,9 +123,11 @@ def apply_string_transformations(
 def format_path(path: Path) -> str:
     """Returns a compacted string representation of the path:
 
-        1. If the path is relative to the current working directory, return the relative path.
-        2. If the path is within the user's home directory, compress it to use '~'.
-        3. Otherwise, return the absolute path.
+        If the path is...
+        1. ...the current directory, return "current directory".
+        2. ...relative to the current directory, return a relative path.
+        3. ...relative to the user's home directory, use '~' shorthand.
+        4. Otherwise, return the absolute path.
 
     Args:
         path: Path to format.
@@ -139,7 +141,7 @@ def format_path(path: Path) -> str:
 
     # TODO: How wo we want to handle this case?
     if path == cwd:
-        return str(path)
+        return "current directory"
 
     # Return if path is relative to the current directory.
     if path.is_relative_to(cwd):

@@ -25,6 +25,9 @@ from .tables import (
 )
 
 
+PATH_CWD = Path.cwd()
+
+
 TYPER_CONFIG = {
     "add_completion": False,
     "no_args_is_help": True,
@@ -114,8 +117,7 @@ def parse_filename_transformations(
         return StringTransformation(value)
     except ValueError as error:
         raise BadParameter(
-            f"Invalid filename-transformation(s) provided. Allowed values are: "
-            f"{', '.join(StringTransformation.choices())}"
+            f"'{value}'. Allowed values are: {', '.join(StringTransformation.choices())}."
         ) from error
 
 
@@ -127,7 +129,7 @@ arg_output_directory = Annotated[
     Option(
         "-o",
         "--output",
-        help="File output directory.",
+        help="File output directory. [dim]default: current directory[/dim]",
         show_default=False,
     ),
 ]
@@ -152,6 +154,15 @@ arg_encoding = Annotated[
     ),
 ]
 
+arg_with_units = Annotated[
+    bool | None,
+    Option(
+        "--with-units/--no-units",
+        help="Add units to values in the QR Code data.",
+        show_default=False,
+    ),
+]
+
 arg_add_caption = Annotated[
     bool | None,
     Option(
@@ -165,16 +176,7 @@ arg_add_date = Annotated[
     bool | None,
     Option(
         "--add-date/--no-date",
-        help="Add the current date into the QR Code data.",
-        show_default=False,
-    ),
-]
-
-arg_with_units = Annotated[
-    bool | None,
-    Option(
-        "--with-units/--no-units",
-        help="Add units to values in the QR Code data.",
+        help="Add the current date in the QR Code data.",
         show_default=False,
     ),
 ]
@@ -183,7 +185,7 @@ arg_date_template = Annotated[
     str | None,
     Option(
         "--date-template",
-        help="Template used to generate the date. Uses strftime [yellow]strftime[/yellow].",
+        help="Template used to generate the date. Uses [yellow]strftime[/yellow] syntax.",
         show_default=False,
         callback=validate_date_template,
     ),
@@ -318,7 +320,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     rich_help_panel="Generate",
 )
 def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
-    output_directory: arg_output_directory,
+    output_directory: arg_output_directory = PATH_CWD,
     ignore_defaults: arg_ignore_defaults = False,
     encoding: arg_encoding = None,
     with_units: arg_with_units = None,
@@ -379,7 +381,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
 
 
 def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
-    output_directory: arg_output_directory,
+    output_directory: arg_output_directory = PATH_CWD,
     ignore_defaults: arg_ignore_defaults = False,
     encoding: arg_encoding = None,
     with_units: arg_with_units = None,
@@ -526,7 +528,7 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
             show_default=False,
         ),
     ],
-    output_directory: arg_output_directory,
+    output_directory: arg_output_directory = PATH_CWD,
     ignore_defaults: arg_ignore_defaults = False,
     encoding: arg_encoding = None,
     with_units: arg_with_units = None,
@@ -600,7 +602,7 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
     rich_help_panel="Generate",
 )
 def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
-    output_directory: arg_output_directory,
+    output_directory: arg_output_directory = PATH_CWD,
     ignore_defaults: arg_ignore_defaults = False,
     encoding: arg_encoding = None,
     with_units: arg_with_units = None,
