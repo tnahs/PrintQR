@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+import unicodedata
 from enum import StrEnum
 from importlib import metadata, resources
 from pathlib import Path
@@ -25,7 +27,7 @@ class App:
     LINK_REPOSITORY = f"https://github.com/tnahs/{NAME_FULL}"
     LINK_DOCUMENTATION = f"https://tnahs.github.io/{NAME_FULL}"
 
-    PATH_ROOT = resources.files(NAME)
+    PATH_ROOT = Path(resources.files(NAME))  # pyright: ignore [reportArgumentType]
     PATH_DATA = PATH_ROOT / "data"
     PATH_USER_DATA = Path.home() / f".{NAME}"
 
@@ -34,6 +36,8 @@ class App:
     PATH_FONT_CAPTION = PATH_FONTS / "better-vcr.ttf"
 
     NAME_CONFIG_TOML = "config.toml"
+    NAME_CONFIG_LOCAL_PQR_TOML = "pqr.toml"
+    NAME_CONFIG_LOCAL_PRINTQR_TOML = "printqr.toml"
     NAME_HISTORY_TOML = "history.toml"
     NAME_PRINT_SETTINGS_TOML = "print-settings.toml"
 
@@ -47,9 +51,38 @@ QR_CODE_VERSION_MAX = 40
 # Enums --------------------------------------------------------------------------------
 
 
-class Delimeter(StrEnum):
-    SNAKE = "_"
-    KEBAB = "-"
+class Key:
+    DATE = "date"
+    FIT = "fit"
+
+
+class ConfigFormat(StrEnum):
+    TOML = ".toml"
+    YAML = ".yaml"
+    JSON = ".json"
+
+
+class Category(StrEnum):
+    FILAMENT = "filament"
+    PRINTER = "printer"
+    SLICER = "slicer"
+    MISC = "misc"
+
+    # TODO: This might not be the best place for either of the follwing methods.
+
+    @classmethod
+    def paths(cls) -> list[str]:
+        return [f"{variant.value}-name" for variant in cls]
+
+    @property
+    def placeholder(self) -> str:
+        return f"[{self.value}]"
+
+
+class Unit(StrEnum):
+    FLOW = "mm³/s"
+    LENGTH = "mm"
+    TEMPERATURE = "°C"
 
 
 class Encoding(StrEnum):
@@ -63,6 +96,58 @@ class Encoding(StrEnum):
                 return "toml"
             case _:
                 return "text"
+
+
+class Delimeter(StrEnum):
+    SNAKE = "_"
+    KEBAB = "-"
+
+
+class StringTransformation(StrEnum):
+    TO_ASCII = "to-ascii"
+    TO_LOWERCASE = "to-lowercase"
+    REMOVE_SPACES = "remove-spaces"
+    SPACES_TO_DASHES = "spaces-to-dashes"
+    SPACES_TO_UNDERSCORES = "spaces-to-underscores"
+
+    @classmethod
+    def choices(cls) -> list[str]:
+        return [variant.value for variant in cls]
+
+    @property
+    def description(self) -> str:
+        match self:
+            case StringTransformation.TO_ASCII:
+                return "Convert all text to ASCII. "
+            case StringTransformation.TO_LOWERCASE:
+                return "Lowercase all text. "
+            case StringTransformation.REMOVE_SPACES:
+                return "Remove all spaces. "
+            case StringTransformation.SPACES_TO_DASHES:
+                return "Replace all spaces with dashes. "
+            case StringTransformation.SPACES_TO_UNDERSCORES:
+                return "Replace all spaces with underscores. "
+            case _:
+                raise ValueError(f"Missing description for: {self}")
+
+    def apply(self, string: str) -> str:
+        match self:
+            case StringTransformation.TO_ASCII:
+                return (
+                    unicodedata.normalize("NFKD", string)
+                    .encode("ascii", "ignore")
+                    .decode("ascii")
+                )
+            case StringTransformation.TO_LOWERCASE:
+                return string.lower()
+            case StringTransformation.REMOVE_SPACES:
+                return string.replace(" ", "")
+            case StringTransformation.SPACES_TO_DASHES:
+                return re.sub(r"[\s-]+", "-", string)
+            case StringTransformation.SPACES_TO_UNDERSCORES:
+                return re.sub(r"[\s_]+", "_", string)
+            case _:
+                raise ValueError(f"Missing implementation for: {self}")
 
 
 class ImageFormat(StrEnum):
@@ -89,37 +174,3 @@ class ErrorCorrection(StrEnum):
                 return qrcode.constants.ERROR_CORRECT_Q
             case self.HIGH:
                 return qrcode.constants.ERROR_CORRECT_H
-
-
-class Unit(StrEnum):
-    FLOW = "mm³/s"
-    LENGTH = "mm"
-    TEMPERATURE = "°C"
-
-
-class Category(StrEnum):
-    FILAMENT = "filament"
-    PRINTER = "printer"
-    SLICER = "slicer"
-    MISC = "misc"
-
-    # TODO: This might not be the best place for either of the follwing methods.
-
-    @classmethod
-    def paths(cls) -> list[str]:
-        return [f"{variant.value}-name" for variant in cls]
-
-    @property
-    def placeholder(self) -> str:
-        return f"[{self.value}]"
-
-
-class ConfigFormat(StrEnum):
-    TOML = ".toml"
-    YAML = ".yaml"
-    JSON = ".json"
-
-
-class Key:
-    DATE = "date"
-    FIT = "fit"

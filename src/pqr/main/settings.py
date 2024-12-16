@@ -105,11 +105,11 @@ class Setting(BaseModel):
         return helpers.kebab_to_snake(self.path)
 
     @property
-    def format_string(self) -> str:
+    def template_string(self) -> str:
         return f"{{{self.path}}}"
 
     @property
-    def format_string_with_unit(self) -> str:
+    def template_string_with_unit(self) -> str:
         return f"{{{self.path}}}{self.unit.value}" if self.unit else f"{{{self.path}}}"
 
     @property
@@ -201,9 +201,8 @@ class Setting(BaseModel):
 
 Settings = dict[str, Setting]
 SettingsDict = dict[str, dict[str, Setting]]
-
 SerializedSettings = dict[str, dict[str, Any]]
-SerializedSettingValues = dict[str, Any]
+TemplateContext = dict[str, Any]
 
 
 class PrintSettings:
@@ -263,7 +262,7 @@ class PrintSettings:
             case _:
                 return self._encode_to_str_toml(with_units, filter_empty_values=True)
 
-    def to_format_dict(self) -> SerializedSettingValues:
+    def to_template_context(self) -> TemplateContext:
         data = {}
 
         for setting in self.iter_settings():
@@ -271,7 +270,7 @@ class PrintSettings:
             value = setting.value or "?"
 
             # Special handling for the date. This allows the user to use either `date`
-            # or `misc-date` when defining formatting strings.
+            # or `misc-date` when defining template strings.
             if setting.name == Key.DATE:
                 data[Key.DATE] = value
 
@@ -293,9 +292,7 @@ class PrintSettings:
         return self.__inner
 
     def _load(self) -> None:
-        data = helpers.read_serialized_data(
-            self.DEFAULT_LOCATION,  # pyright: ignore [reportArgumentType]
-        )
+        data = helpers.read_serialized_data(self.DEFAULT_LOCATION)
 
         # In TOML, a list of dictionaries must be defined in a dictionay of its own.
         # It doesn't matter what this dictionary is named, we just need to extract the
@@ -358,7 +355,7 @@ class PrintSettings:
     # We don't remove empty values for the 'compact' format as this would cause an issue
     # if the data were to be parsed back into dict/TOML or other structured data.
     def _encode_to_str_compact(self, with_units: bool = False) -> str:
-        data = []
+        template = []
 
         for setting in self.iter_settings():
             if not setting.value:
@@ -366,22 +363,24 @@ class PrintSettings:
                 # sure there's atleast a header. This allows for parsing the data
                 # back into dict/TOML or other structured data.
                 if setting.path in Category.paths():
-                    data.append(setting.category.placeholder)
+                    template.append(setting.category.placeholder)
 
                 continue
 
-            value_format_string = (
-                setting.format_string_with_unit if with_units else setting.format_string
+            value_template = (
+                setting.template_string_with_unit
+                if with_units
+                else setting.template_string
             )
 
             if setting.compact_name is not None:
-                format_string = f"  {setting.compact_name}={value_format_string}"
+                setting_template = f"  {setting.compact_name}={value_template}"
             else:
-                format_string = value_format_string
+                setting_template = value_template
 
-            data.append(format_string)
+            template.append(setting_template)
 
-        return "\n".join(data).format(**self.to_format_dict())
+        return "\n".join(template).format(**self.to_template_context())
 
 
 PRINT_SETTINGS = PrintSettings()

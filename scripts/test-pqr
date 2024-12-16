@@ -41,15 +41,18 @@ EOF
 
 
 function from_prompts {
-    uv run pqr $debug prompts                        \
-                                                     \
-        --output "$tmp"                              \
-        --encoding "compact"                         \
-        --add-caption                                \
-        --add-date                                   \
-        --date-template "%Y-%m"                      \
-        --filename-template "{filament-name}-{date}" \
-        --caption-template "{filament-name}" "{date}"
+    uv run pqr $debug prompts                             \
+                                                          \
+        --output "$tmp"                                   \
+        --encoding "compact"                              \
+        --add-caption                                     \
+        --add-date                                        \
+        --date-template "%Y-%m"                           \
+        --filename-template "{filament-name}-{date}"      \
+        --filename-transformation "to-ascii"              \
+        --filename-transformation "to-lowercase"          \
+        --filename-transformation "spaces-to-underscores" \
+        --caption-templates "{filament-name}" "{date}"
 }
 
 
@@ -62,7 +65,10 @@ function from_args {
         --add-date                                        \
         --date-template "%Y-%m"                           \
         --filename-template "{filament-name}-{date}"      \
-        --caption-template "{filament-name}" "{date}"     \
+        --filename-transformation "to-ascii"              \
+        --filename-transformation "to-lowercase"          \
+        --filename-transformation "spaces-to-underscores" \
+        --caption-templates "{filament-name}" "{date}"    \
                                                           \
         --filament-name               "FILAMENT_NAME"     \
         --filament-brand              "FILAMENT_BRAND"    \
@@ -96,7 +102,10 @@ function from_template {
         --add-date                                         \
         --date-template "%Y-%m"                            \
         --filename-template "{filament-name}-{date}"       \
-        --caption-template "{filament-name}" "{date}"
+        --filename-transformation "to-ascii"               \
+        --filename-transformation "to-lowercase"           \
+        --filename-transformation "spaces-to-underscores"  \
+        --caption-templates "{filament-name}" "{date}"
 }
 
 

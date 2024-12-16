@@ -9,7 +9,7 @@ from pathlib import Path
 import tomllib
 import yaml
 
-from .shared import App, ConfigFormat, console
+from .shared import App, ConfigFormat, StringTransformation, console
 from .ui import INDENT
 
 
@@ -85,9 +85,68 @@ def read_serialized_data(path: Path) -> dict:
     raise ValueError(f"Unsupported serialized data format: '{path.name}'.")
 
 
+def merge_dicts(base: dict, overrides: dict) -> dict:
+    def recursive_merge(base: dict, override: dict) -> dict:
+        for key, value in override.items():
+            if isinstance(value, dict) and isinstance(base.get(key), dict):
+                base[key] = recursive_merge(base[key], value)
+            else:
+                base[key] = value
+
+        return base
+
+    return recursive_merge(base.copy(), overrides)
+
+
+def generate_basename(
+    template: str,
+    template_context: dict,
+    string_transformations: list[StringTransformation],
+) -> str:
+    basename = template.format(**template_context)
+    basename = apply_string_transformations(basename, string_transformations)
+
+    return basename
+
+
+def apply_string_transformations(
+    string: str, string_transformations: list[StringTransformation]
+) -> str:
+    string = str(string).strip()
+
+    for string_transformation in string_transformations:
+        string_transformation.apply(string)
+
+    return string
+
+
 def format_path(path: Path) -> str:
-    home = str(Path.home())
-    return str(path).replace(home, "~")
+    """Returns a compacted string representation of the path:
+
+        1. If the path is relative to the current working directory, return the relative path.
+        2. If the path is within the user's home directory, compress it to use '~'.
+        3. Otherwise, return the absolute path.
+
+    Args:
+        path: Path to format.
+
+    Returns:
+        str: Formatted path.
+    """
+
+    cwd = Path.cwd()
+    home = Path.home()
+
+    # Return if path is relative to the current directory.
+    if path.is_relative_to(cwd):
+        return f"./{path.relative_to(cwd)}"
+
+    # Return if path is relative to the user's home directory
+    if path.is_relative_to(home):
+        return str(path).replace(str(home), "~", count=1)
+
+    # Return absolute path as fallback.
+    return str(path)
 
 
 def kebab_to_snake(string: str) -> str:

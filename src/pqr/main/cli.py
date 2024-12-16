@@ -17,8 +17,12 @@ from . import app, errors, helpers, qr, ui
 from .config import CONFIG, read_serialized_data
 from .errors import ConfigReadError
 from .settings import PRINT_SETTINGS, Setting
-from .shared import App, Delimeter, Encoding, Key, console
-from .tables import TABLE_TEMPLATES_DATE, TABLE_TEMPLATES_FIELDS
+from .shared import App, Delimeter, Encoding, Key, StringTransformation, console
+from .tables import (
+    TABLE_STRING_TRANSFORMATIONS,
+    TABLE_TEMPLATES_DATE,
+    TABLE_TEMPLATES_FIELDS,
+)
 
 
 TYPER_CONFIG = {
@@ -81,7 +85,7 @@ def validate_template_string(value: str | list[str] | None) -> str | list[str] |
 
     for string in strings:
         try:
-            string.format(**PRINT_SETTINGS.to_format_dict())
+            string.format(**PRINT_SETTINGS.to_template_context())
         except Exception as error:
             raise BadParameter(string) from error
 
@@ -98,6 +102,21 @@ def validate_date_template(value: str | None) -> str | None:
         raise BadParameter(value) from error
 
     return value
+
+
+def parse_filename_transformations(
+    value: str | None,
+) -> StringTransformation | None:
+    if value is None:
+        return None
+
+    try:
+        return StringTransformation(value)
+    except ValueError as error:
+        raise BadParameter(
+            f"Invalid filename-transformation(s) provided. Allowed values are: "
+            f"{', '.join(StringTransformation.choices())}"
+        ) from error
 
 
 # Shared Args --------------------------------------------------------------------------
@@ -180,13 +199,28 @@ arg_filename_template = Annotated[
     ),
 ]
 
+# NOTE: We're manually parsing the arg here as theres no way to tell typer to hide the
+# enum's choices. The list of transformations is much too long to display.
+arg_filename_transformations = Annotated[
+    list[StringTransformation] | None,
+    Option(
+        "-ft",
+        "--filename-transformation",
+        help=f"Run [cyan]'{App.NAME} info transformations'[/cyan] for more information.",
+        show_default=False,
+        metavar="TRANSFORMATION",
+        parser=parse_filename_transformations,
+    ),
+]
+
 arg_caption_templates = Annotated[
     tuple[str, str] | None,
     Option(
-        "--caption-template",
+        "--caption-templates",
         min=2,
         max=2,
-        help="Templates used to generate the caption. As: [yellow]'{line-one} {line-two}'[/yellow]",
+        metavar="'LINE1 LINE2'",
+        help="Templates used to generate the caption.",
         show_default=False,
         callback=validate_template_string,
     ),
@@ -218,6 +252,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     add_date: bool | None,
     date_template: str | None,
     filename_template: str | None,
+    filename_transformations: list[StringTransformation] | None,
     caption_templates: tuple[str, str] | None,
 ) -> SimpleNamespace:
     if not app.is_user_config_setup():
@@ -241,6 +276,9 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     with_units = with_units if with_units is not None else CONFIG.cfg.options.with_units
     date_template = date_template or CONFIG.cfg.template.date
     filename_template = filename_template or CONFIG.cfg.template.filename
+    filename_transformations = (
+        filename_transformations or CONFIG.cfg.template.filename_transformations
+    )
     caption_templates = caption_templates or (
         CONFIG.cfg.template.caption_line_one,
         CONFIG.cfg.template.caption_line_two,
@@ -255,6 +293,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
         with_units=with_units,
         date_template=date_template,
         filename_template=filename_template,
+        filename_transformations=filename_transformations,
         caption_templates=caption_templates,
     )
 
@@ -287,6 +326,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
     add_date: arg_add_date = None,
     date_template: arg_date_template = None,
     filename_template: arg_filename_template = None,
+    filename_transformations: arg_filename_transformations = None,
     caption_templates: arg_caption_templates = None,
 ) -> None:
     """Generate a QR Code from commandline [green]prompts[/green]."""
@@ -300,6 +340,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
         add_date,
         date_template,
         filename_template,
+        filename_transformations,
         caption_templates,
     )
 
@@ -318,6 +359,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
         args.add_date,
         args.date_template,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -328,6 +370,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
         args.with_units,
         args.output_directory,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -344,6 +387,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
     add_date: arg_add_date = None,
     date_template: arg_date_template = None,
     filename_template: arg_filename_template = None,
+    filename_transformations: arg_filename_transformations = None,
     caption_templates: arg_caption_templates = None,
     **print_settings,  # noqa: ANN003
 ) -> None:
@@ -358,6 +402,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
         add_date,
         date_template,
         filename_template,
+        filename_transformations,
         caption_templates,
     )
 
@@ -386,6 +431,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
         args.add_date,
         args.date_template,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -396,6 +442,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
         args.encoding,
         args.output_directory,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -487,6 +534,7 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
     add_date: arg_add_date = None,
     date_template: arg_date_template = None,
     filename_template: arg_filename_template = None,
+    filename_transformations: arg_filename_transformations = None,
     caption_templates: arg_caption_templates = None,
 ) -> None:
     """Generate a QR Code from a [green]TOML template[/green]."""
@@ -500,6 +548,7 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
         add_date,
         date_template,
         filename_template,
+        filename_transformations,
         caption_templates,
     )
 
@@ -525,6 +574,7 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
         args.add_date,
         args.date_template,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -535,6 +585,7 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
         args.encoding,
         args.output_directory,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -557,6 +608,7 @@ def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
     add_date: arg_add_date = None,
     date_template: arg_date_template = None,
     filename_template: arg_filename_template = None,
+    filename_transformations: arg_filename_transformations = None,
     caption_templates: arg_caption_templates = None,
 ) -> None:
     """Revise the [green]last generated QR Code[/green]."""
@@ -570,6 +622,7 @@ def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
         add_date,
         date_template,
         filename_template,
+        filename_transformations,
         caption_templates,
     )
 
@@ -596,6 +649,7 @@ def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
         args.add_date,
         args.date_template,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -606,6 +660,7 @@ def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
         args.encoding,
         args.output_directory,
         args.filename_template,
+        args.filename_transformations,
         args.caption_templates,
     )
 
@@ -675,6 +730,7 @@ def init_template_command(
 class ChoiceReferenceTable(StrEnum):
     DATE = "date"
     FIELDS = "fields"
+    TRANSFORMATIONS = "transformations"
 
 
 @cli.command(
@@ -701,11 +757,17 @@ def run_command_info(
             console.print(TABLE_TEMPLATES_DATE)
         case ChoiceReferenceTable.FIELDS:
             console.print(TABLE_TEMPLATES_FIELDS)
+        case ChoiceReferenceTable.TRANSFORMATIONS:
+            console.print(TABLE_STRING_TRANSFORMATIONS)
 
 
 # Command: edit ------------------------------------------------------------------------
 
 
+# TODO: Modify this so that it detects if there is a local config. Give the user some
+# option to choose which config to modify. Alternatively, we can provide a subcommand
+# that look like `edit user` and `edit local`. When running `edit local` we can drop a
+# config into the current directory and then edit it.
 @cli.command(
     name="edit",
     short_help="Edit user config file.",

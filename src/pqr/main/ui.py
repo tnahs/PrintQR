@@ -45,13 +45,8 @@ TABLE_STYLE = {
 }
 
 TABLE_PADDING = {
-    # top, right, bottom, left
-    "pad": (
-        1,
-        len(INDENT),
-        1,
-        len(INDENT),
-    ),
+    #       t  r            b  l
+    "pad": (1, len(INDENT), 0, len(INDENT)),
     "expand": False,
 }
 

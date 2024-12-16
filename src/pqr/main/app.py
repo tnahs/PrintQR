@@ -15,7 +15,7 @@ from . import errors, helpers, qr, ui
 from .config import CONFIG, ConfigManager
 from .errors import ConfigReadError, ConfigValidationError
 from .settings import PrintSettings
-from .shared import App, Encoding, Key, console
+from .shared import App, Encoding, Key, StringTransformation, console
 from .ui import INDENT
 
 
@@ -79,12 +79,7 @@ def save_config_toml(
         padding_outer=(1, len(INDENT), 0, len(INDENT)),
     )
 
-    helpers.copy_file(
-        source,  # pyright: ignore [reportArgumentType, reportCallIssue]
-        destination,
-        create_destination,
-        force,
-    )
+    helpers.copy_file(source, destination, create_destination, force)
 
     # Build Config Header --------------------------------------------------------------
 
@@ -140,11 +135,19 @@ def is_user_config_setup() -> bool:
 
 
 def print_auto_filling_note() -> None:
-    config_filepath = helpers.format_path(CONFIG.filepath)
+    config_filepaths = "\n  ".join(
+        [
+            helpers.format_path(filepath)
+            for filepath in CONFIG.get_config_toml_override_paths()
+        ]
+    )
+
     ui.print_panel(
-        f"[cyan]Default print settings taken from:[/cyan] [blue]{config_filepath}[/blue]\n"
-        f"[dim]Use [cyan]--ignore-defaults[/cyan] to ignore default print settings [/dim]\n"
-        f"[dim]or run [cyan]{App.NAME} edit[/cyan] to edit default print settings.[/dim]",
+        f"[cyan]Default print settings taken from:[/cyan]\n"
+        f"[blue]  {config_filepaths}[/blue]\n"
+        f"\n"
+        f"[dim]Use [cyan]--ignore-defaults[/cyan] to ignore default print settings "
+        f"or run [cyan]{App.NAME} edit[/cyan] to edit them.[/dim]",
     )
 
 
@@ -222,7 +225,7 @@ def prompt_print_settings(
     return print_settings
 
 
-def revise_print_settings(  # noqa: PLR0913, PLR0917
+def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
     print_settings: PrintSettings,
     ignore_defaults: bool,
     encoding: Encoding,
@@ -230,6 +233,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0917
     add_date: bool,
     date_template: str,
     filename_template: str,
+    filename_transformations: list[StringTransformation],
     caption_templates: tuple[str, str],
 ) -> PrintSettings:
     color_style = "cyan"
@@ -276,10 +280,17 @@ def revise_print_settings(  # noqa: PLR0913, PLR0917
 
         # Panel/Table: QR Code ASCII preview -------------------------------------------
 
-        filename = filename_template.format(**print_settings.to_format_dict())
-        filename = f"filename:[yellow]{filename}{CONFIG.cfg.qr_code.format.to_suffix()}[/yellow]"
+        template_context = print_settings.to_template_context()
 
-        caption = "\n".join(caption_templates).format(**print_settings.to_format_dict())
+        basename = helpers.generate_basename(
+            template=filename_template,
+            template_context=template_context,
+            string_transformations=filename_transformations,
+        )
+
+        filename = f"filename:[yellow]{basename}{CONFIG.cfg.qr_code.format.to_suffix()}[/yellow]"
+
+        caption = "\n".join(caption_templates).format(**template_context)
 
         qr_code_stats = " ".join(
             [

@@ -51,7 +51,7 @@ add-date = false
 # │                                                                                                │
 # │   Template strings for generating dates, filenames and image captions.                         │
 # │                                                                                                │
-# │   Use the `print` command to see all available fields and date formatting syntax.              │
+# │   Use the `info` command to see all available fields and date formatting syntax.               │
 # │                                                                                                │
 # └────────────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -76,6 +76,23 @@ date = "%Y-%m-%d"
 #   default:   "{filament-material}_{filament-brand}_{filament-name}"
 #
 filename = "{filament-material}_{filament-brand}_{filament-name}"
+
+# Apply a list of string transformations to all generated filenames. The
+# transformations are applied in the order they are declared.
+#
+#   Available options:
+#     "to-ascii"              - Convert all text to ASCII.
+#     "to-lowercase"          - Lowercase all text.
+#     "remove-spaces"         - Remove all spaces.
+#     "spaces-to-dashes"      - Replace all spaces with dashes.
+#     "spaces-to-underscores" - Replace all spaces with underscores.
+#
+#   cli:       true
+#   unit:      -
+#   type:      list[str]
+#   default:   []
+#
+filename-transformations = []
 
 # Template used to generate the caption - line one.
 #

@@ -24,6 +24,7 @@ from .shared import (
     ErrorCorrection,
     ImageFormat,
     Key,
+    StringTransformation,
 )
 
 
@@ -37,7 +38,7 @@ QrCodeVersion = (
 
 
 class BaseConfig(BaseModel):
-    # Allow reading `field-name` and `field_name` as identical.
+    # Accept both `field-name` and `field_name` as valid keys.
     model_config = ConfigDict(
         alias_generator=AliasGenerator(
             validation_alias=helpers.snake_to_kebab,
@@ -55,6 +56,7 @@ class Options(BaseConfig):
 
 class Template(BaseConfig):
     filename: str
+    filename_transformations: list[StringTransformation]
     caption_line_one: str
     caption_line_two: str
     date: str
@@ -143,9 +145,10 @@ class Config(BaseConfig):
 
 class ConfigManager:
     DEFAULT_LOCATION = App.PATH_DATA / App.NAME_CONFIG_TOML
-    LOCATIONS = (
-        Path.cwd() / App.NAME_CONFIG_TOML,
+    OVERRIDE_LOCATIONS = (
         App.PATH_USER_DATA / App.NAME_CONFIG_TOML,
+        Path.cwd() / App.NAME_CONFIG_LOCAL_PRINTQR_TOML,
+        Path.cwd() / App.NAME_CONFIG_LOCAL_PQR_TOML,
     )
 
     __debug: bool = False
@@ -163,26 +166,33 @@ class ConfigManager:
     def debug(self, value: bool) -> None:
         self.__debug = value
 
-    @property
-    def filepath(self) -> Path:
-        return self._get_config_toml()
-
     def load(self, user: bool = False) -> None:
-        config = helpers.read_serialized_data(
-            self.DEFAULT_LOCATION  # pyright: ignore [reportArgumentType]
-        )
+        filepaths = [self.DEFAULT_LOCATION]
 
         if user is True:
-            config_user = read_serialized_data(self.filepath)
-            # TODO: Check if we lose key:value pairs during update.
-            config.update(config_user)
+            filepaths.extend(self.get_config_toml_override_paths())
 
-        try:
-            self.__inner = Config(**config)
-        except ValidationError as error:
-            raise ConfigValidationError(error, self.filepath) from error
+        config = {}
+
+        for filepath in filepaths:
+            data = read_serialized_data(filepath)
+            config = helpers.merge_dicts(config, data)
+
+            try:
+                self.__inner = Config(**config)
+            except ValidationError as error:
+                raise ConfigValidationError(error, filepath) from error
 
         PRINT_SETTINGS.update(data=self.__inner.print_settings)
+
+    def get_config_toml_override_paths(self) -> list[Path]:
+        paths = []
+
+        for location in self.OVERRIDE_LOCATIONS:
+            if location.exists():
+                paths.append(location)
+
+        return paths
 
     @property
     def _inner(self) -> Config:
@@ -190,17 +200,6 @@ class ConfigManager:
             self.load()
 
         return self.__inner
-
-    @classmethod
-    def _get_config_toml(cls) -> Path:
-        path = cls.DEFAULT_LOCATION
-
-        for location in cls.LOCATIONS:
-            if location.exists():
-                path = location
-                break
-
-        return path  # pyright: ignore [reportReturnType]
 
 
 # TODO: This and `helpers.read_serialized_data` should maybe go somewhere else?

@@ -6,10 +6,10 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from qrcode.main import QRCode
 
-from . import ui
+from . import helpers, ui
 from .config import CONFIG
 from .settings import PrintSettings
-from .shared import App, Encoding
+from .shared import App, Encoding, StringTransformation
 from .ui import INDENT
 
 
@@ -20,6 +20,7 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
     encoding: Encoding,
     output_directory: Path,
     filename_template: str,
+    filename_transformations: list[StringTransformation],
     caption_templates: tuple[str, str],
 ) -> None:
     qr_code_data = print_settings.to_encoded_str(encoding, with_units)
@@ -34,11 +35,11 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
 
     image = qr_code.make_image().get_image()
 
-    print_settings_dict = print_settings.to_format_dict()
+    template_context = print_settings.to_template_context()
 
     if add_caption:
-        caption_line_one = caption_templates[0].format(**print_settings_dict)
-        caption_line_two = caption_templates[1].format(**print_settings_dict)
+        caption_line_one = caption_templates[0].format(**template_context)
+        caption_line_two = caption_templates[1].format(**template_context)
 
         image = _add_caption_to_image(
             image,
@@ -46,16 +47,18 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
             caption_line_two,
         )
 
-    filename_formatted = filename_template.format(**print_settings_dict)
+    basename = helpers.generate_basename(
+        template=filename_template,
+        template_context=template_context,
+        string_transformations=filename_transformations,
+    )
 
-    image_path = f"{filename_formatted}{CONFIG.cfg.qr_code.format.to_suffix()}"
-    image_path = output_directory / image_path
+    image_path = output_directory / f"{basename}{CONFIG.cfg.qr_code.format.to_suffix()}"
     image.save(image_path)
     image.close()
 
     # Save a copy of the QR Code data in the output directory.
-    config_path = f"{filename_formatted}.toml"
-    config_path = output_directory / config_path
+    config_path = output_directory / f"{basename}.toml"
     config_path.write_text(print_settings.dump())
 
     # Save a copy of the QR Code data in the user data directory.

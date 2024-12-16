@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import textwrap
 from datetime import datetime
 
+from rich.console import Group
 from rich.padding import Padding
+from rich.text import Text
 
 from . import ui
 from .settings import PRINT_SETTINGS
+from .shared import StringTransformation
 
 
 def _generate_table_template_fields() -> Padding:
@@ -28,7 +32,7 @@ def _generate_table_template_fields() -> Padding:
         "Category",
         "Name",
         "Short Name",
-        "Format String",
+        "Template String",
         "Type",
         "Unit",
         "Description",
@@ -52,7 +56,7 @@ def _generate_table_template_fields() -> Padding:
             setting.category,
             setting.name,
             setting.compact_name or empty_value,
-            setting.format_string,
+            setting.template_string,
             setting.type.__name__,
             setting.unit or empty_value,
             setting.description.capitalize(),
@@ -72,7 +76,7 @@ def _generate_table_template_date() -> Padding:
 
     date = datetime.now()
 
-    formats = [
+    date_formats = [
         (
             "%a",  # Sun
             "Weekday as locale's abbreviated name.",
@@ -125,8 +129,12 @@ def _generate_table_template_date() -> Padding:
             style=style2,
         )
 
-    for row in formats:
-        table.add_row(row[0], date.strftime(row[0]), row[1])
+    for date_format in date_formats:
+        table.add_row(
+            date_format[0],
+            date.strftime(date_format[0]),
+            date_format[1],
+        )
 
     return Padding(
         table,
@@ -134,5 +142,65 @@ def _generate_table_template_date() -> Padding:
     )
 
 
+def _generate_table_string_transformations() -> Padding:
+    style1 = "cyan"
+    style2 = "green"
+    accent_style1 = "yellow"
+
+    table = ui.table(
+        title=(
+            f"[{style1}]Available filename transformations for "
+            f"[{accent_style1}]image[/{accent_style1}], "
+            f"[{accent_style1}]TOML[/{accent_style1}] and "
+            f"[{accent_style1}]GCode[/{accent_style1}] filenames.[/{style1}]"
+        ),
+    )
+
+    example_string = "Prusament PLA - Gålåxy Blåck"
+
+    for header in [
+        "Name",
+        f"Example: [yellow]{example_string}[/yellow]",
+        "Description",
+    ]:
+        table.add_column(
+            header=header,
+            style=style2,
+        )
+
+    for transformation in StringTransformation:
+        table.add_row(
+            transformation.value,
+            transformation.apply(example_string),
+            transformation.description,
+        )
+
+    description = textwrap.wrap(
+        text=textwrap.dedent(
+            """
+            Transformations can be used to modify generated filenames. These
+            transformations are applied after the filenames are generated but before
+            the extension is added. For complex modifications, transformations can be
+            chained.
+            """
+        ),
+        width=95,
+    )
+
+    description = Text(
+        "\n".join(description),
+        style="cyan",
+        justify="left",
+    )
+
+    group = Group(description, "\n", table)
+
+    return Padding(
+        group,
+        **ui.TABLE_PADDING,
+    )
+
+
 TABLE_TEMPLATES_FIELDS = _generate_table_template_fields()
 TABLE_TEMPLATES_DATE = _generate_table_template_date()
+TABLE_STRING_TRANSFORMATIONS = _generate_table_string_transformations()
