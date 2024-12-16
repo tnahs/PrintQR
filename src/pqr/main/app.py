@@ -335,8 +335,8 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
         # ------------------------------------------------------------------------------
 
         reply = Prompt.ask(
-            f"{INDENT * 2}[magenta]Continue [Cc] or Revise [Rr][/magenta]",
-            choices=["C", "R"],
+            f"{INDENT * 2}[magenta]Generate [Gg] / Revise [Rr] / Abort [Aa][/magenta]",
+            choices=["G", "R", "A"],
             show_choices=False,
             case_sensitive=False,
         )
@@ -358,6 +358,8 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
                 ignore_defaults=ignore_defaults,
                 revising_pass=True,
             )
+        elif reply == "A":
+            sys.exit(-1)
         else:
             break
 
