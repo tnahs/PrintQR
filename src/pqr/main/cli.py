@@ -137,7 +137,7 @@ arg_ignore_defaults = Annotated[
     Option(
         "-d",
         "--ignore-defaults",
-        help=f"Ignore default print settings in [green]{App.NAME_CONFIG_TOML}[/green].",
+        help=f"Ignore default print settings in [green]{App.NAME_CONFIG_FILE}[/green].",
         show_default=False,
     ),
 ]
@@ -256,7 +256,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     caption_templates: tuple[str, str] | None,
 ) -> SimpleNamespace:
     if not app.is_user_config_setup():
-        app.save_config_toml()
+        app.save_config_file()
 
     if CONFIG.debug is False:
         console.clear()
@@ -626,7 +626,7 @@ def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
         caption_templates,
     )
 
-    path = App.PATH_USER_DATA / App.NAME_HISTORY_TOML
+    path = App.PATH_USER_DATA / App.NAME_HISTORY_FILE
 
     try:
         data = read_serialized_data(path)
@@ -678,25 +678,25 @@ cli.add_typer(cli_init, name="init")
 @cli_init.command(
     name="app",
     short_help=(
-        f"Create default [green]{App.NAME_CONFIG_TOML}[/green] in "
+        f"Create default [green]{App.NAME_CONFIG_FILE}[/green] in "
         f"[yellow]{helpers.format_path(App.PATH_USER_DATA)}[/yellow]."
     ),
     rich_help_panel="Application",
 )
 def init_app_command(force: arg_force = False) -> None:
-    app.save_config_toml(force=force)
+    app.save_config_file(force=force)
 
 
 @cli_init.command(
     name="config",
     short_help=(
-        f"Create default [green]{App.NAME_CONFIG_TOML}[/green] "
+        f"Create default [green]{App.NAME_CONFIG_FILE}[/green] "
         "in the current directory."
     ),
     rich_help_panel="Application",
 )
 def init_template_config(force: arg_force = False) -> None:
-    app.save_config_toml(
+    app.save_config_file(
         destination=Path.cwd(),
         create_destination=False,
         force=force,
@@ -706,7 +706,7 @@ def init_template_config(force: arg_force = False) -> None:
 @cli_init.command(
     name="template",
     short_help=(
-        f"Create [green]{App.NAME_PRINT_SETTINGS_TOML}[/green] "
+        f"Create [green]{App.NAME_PRINT_SETTINGS_FILE}[/green] "
         "file in the current directory."
     ),
     rich_help_panel="Application",
@@ -717,8 +717,8 @@ def init_template_command(
     # Clear out the print settings so we have a blank output.
     PRINT_SETTINGS.clear()
 
-    app.save_print_settings_toml(
-        destination=Path.cwd() / App.NAME_PRINT_SETTINGS_TOML,
+    app.save_print_settings_file(
+        destination=Path.cwd() / App.NAME_PRINT_SETTINGS_FILE,
         print_settings=PRINT_SETTINGS,
         force=force,
     )
@@ -777,6 +777,6 @@ def edit() -> None:
     """Edit user config file."""
 
     if not app.is_user_config_setup():
-        app.save_config_toml()
+        app.save_config_file()
 
-    helpers.edit_file(App.PATH_USER_DATA / App.NAME_CONFIG_TOML)
+    helpers.edit_file(App.PATH_USER_DATA / App.NAME_CONFIG_FILE)

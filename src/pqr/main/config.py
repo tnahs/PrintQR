@@ -144,11 +144,10 @@ class Config(BaseConfig):
 
 
 class ConfigManager:
-    DEFAULT_LOCATION = App.PATH_DATA / App.NAME_CONFIG_TOML
+    DEFAULT_LOCATION = App.PATH_DATA / App.NAME_CONFIG_FILE
     OVERRIDE_LOCATIONS = (
-        App.PATH_USER_DATA / App.NAME_CONFIG_TOML,
-        Path.cwd() / App.NAME_CONFIG_LOCAL_PRINTQR_TOML,
-        Path.cwd() / App.NAME_CONFIG_LOCAL_PQR_TOML,
+        App.PATH_USER_DATA / App.NAME_CONFIG_FILE,
+        Path.cwd() / App.NAME_CONFIG_FILE,
     )
 
     __debug: bool = False
@@ -170,7 +169,7 @@ class ConfigManager:
         filepaths = [self.DEFAULT_LOCATION]
 
         if user is True:
-            filepaths.extend(self.get_config_toml_override_paths())
+            filepaths.extend(self.get_config_file_override_paths())
 
         config = {}
 
@@ -185,7 +184,7 @@ class ConfigManager:
 
         PRINT_SETTINGS.update(data=self.__inner.print_settings)
 
-    def get_config_toml_override_paths(self) -> list[Path]:
+    def get_config_file_override_paths(self) -> list[Path]:
         paths = []
 
         for location in self.OVERRIDE_LOCATIONS:

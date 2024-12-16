@@ -30,7 +30,7 @@ def load_config(user: bool) -> None:
         sys.exit(-1)
 
 
-def save_print_settings_toml(
+def save_print_settings_file(
     destination: Path,
     print_settings: PrintSettings,
     force: bool = False,
@@ -58,8 +58,8 @@ def save_print_settings_toml(
     destination.write_text(print_settings.dump())
 
 
-def save_config_toml(
-    destination: Path = App.PATH_USER_DATA,
+def save_config_file(
+    destination: Path | None = None,
     create_destination: bool = True,
     force: bool = False,
 ) -> None:
@@ -67,9 +67,11 @@ def save_config_toml(
     style2 = "yellow"
 
     source = ConfigManager.DEFAULT_LOCATION
+
+    destination = destination or App.PATH_USER_DATA
     destination = destination.resolve()
 
-    config_toml = destination / source.name
+    config_file = destination / source.name
 
     text_destination = f"[{style2}]{helpers.format_path(destination)}[/{style2}]"
 
@@ -108,17 +110,17 @@ def save_config_toml(
         [f"{comment_prefix}{line}" for line in panel_config_header.splitlines()]
     )
 
-    config_toml.write_text(
+    config_file.write_text(
         "".join(
             [
-                f"{comment_prefix}{helpers.format_path(config_toml)}",
+                f"{comment_prefix}{helpers.format_path(config_file)}",
                 f"\n{comment_prefix}",
                 f"\n{panel_config_header}",
                 "\n",
                 "\n",
                 "\n",
                 "\n",
-                f"{config_toml.read_text().strip()}",
+                f"{config_file.read_text().strip()}",
             ]
         )
     )
@@ -127,7 +129,7 @@ def save_config_toml(
 def is_user_config_setup() -> bool:
     required_items = [
         App.PATH_USER_DATA,
-        App.PATH_USER_DATA / App.NAME_CONFIG_TOML,
+        App.PATH_USER_DATA / App.NAME_CONFIG_FILE,
     ]
 
     # We need to initialize the application before editing the files.
@@ -138,7 +140,7 @@ def print_auto_filling_note() -> None:
     config_filepaths = "\n  ".join(
         [
             helpers.format_path(filepath)
-            for filepath in CONFIG.get_config_toml_override_paths()
+            for filepath in CONFIG.get_config_file_override_paths()
         ]
     )
 

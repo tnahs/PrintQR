@@ -35,11 +35,9 @@ class App:
     PATH_FONTS = PATH_RESOURCES / "fonts"
     PATH_FONT_CAPTION = PATH_FONTS / "better-vcr.ttf"
 
-    NAME_CONFIG_TOML = "config.toml"
-    NAME_CONFIG_LOCAL_PQR_TOML = "pqr.toml"
-    NAME_CONFIG_LOCAL_PRINTQR_TOML = "printqr.toml"
-    NAME_HISTORY_TOML = "history.toml"
-    NAME_PRINT_SETTINGS_TOML = "print-settings.toml"
+    NAME_CONFIG_FILE = "pqr.toml"
+    NAME_HISTORY_FILE = "history.toml"
+    NAME_PRINT_SETTINGS_FILE = "print-settings.toml"
 
     DEFAULT_EDITOR = "vi"
 

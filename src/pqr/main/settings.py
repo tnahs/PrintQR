@@ -206,7 +206,7 @@ TemplateContext = dict[str, Any]
 
 
 class PrintSettings:
-    DEFAULT_LOCATION = App.PATH_DATA / App.NAME_PRINT_SETTINGS_TOML
+    DEFAULT_LOCATION = App.PATH_DATA / App.NAME_PRINT_SETTINGS_FILE
 
     __inner: dict[str, Setting] = {}  # noqa: RUF012
     __date: Setting

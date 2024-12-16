@@ -137,6 +137,10 @@ def format_path(path: Path) -> str:
     cwd = Path.cwd()
     home = Path.home()
 
+    # TODO: How wo we want to handle this case?
+    if path == cwd:
+        return str(path)
+
     # Return if path is relative to the current directory.
     if path.is_relative_to(cwd):
         return f"./{path.relative_to(cwd)}"
