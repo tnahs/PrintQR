@@ -177,7 +177,6 @@ def prompt_print_settings(
     ignore_defaults: bool,
     add_date: bool,
     date_template: str,
-    revising_pass: bool = False,
 ) -> PrintSettings:
     category = None
     first_line = True
@@ -213,12 +212,7 @@ def prompt_print_settings(
                 prompt = Prompt
 
         prompt_text = f"{INDENT * 3}{setting.description_formatted()}"
-
-        match (revising_pass, ignore_defaults):
-            case (True, False):
-                default = setting.value or None
-            case _:
-                default = None
+        default = None if ignore_defaults is True else (setting.value or None)
 
         reply = prompt.ask(prompt_text, default=default)
 
@@ -358,10 +352,11 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
                 add_date=add_date,
                 date_template=date_template,
                 ignore_defaults=ignore_defaults,
-                revising_pass=True,
             )
+
         elif reply == "A":
             sys.exit(-1)
+
         else:
             break
 
