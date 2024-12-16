@@ -315,7 +315,6 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
 
 @cli.command(
     name="prompts",
-    no_args_is_help=True,
     short_help="...from commandline [green]prompts[/green].",
     rich_help_panel="Generate",
 )
@@ -521,9 +520,7 @@ cli.command(
 def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
     path: Annotated[
         Path,
-        Option(
-            "-i",
-            "--input",
+        Argument(
             help="Path to a [green]TOML template[/green].",
             show_default=False,
         ),
@@ -597,7 +594,6 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
 
 @cli.command(
     name="revise",
-    no_args_is_help=True,
     short_help="...from [green]last generated QR Code[/green].",
     rich_help_panel="Generate",
 )
