@@ -201,7 +201,7 @@ arg_filename_template = Annotated[
     ),
 ]
 
-# NOTE: We're manually parsing the arg here as theres no way to tell typer to hide the
+# NOTE: We're manually parsing the arg here as there's no way to tell Typer to hide the
 # enum's choices. The list of transformations is much too long to display.
 arg_filename_transformations = Annotated[
     list[StringTransformation] | None,
@@ -238,7 +238,7 @@ arg_force = Annotated[
 ]
 
 
-# NOTE: Until theres a better way to share command level args this is the simplest way
+# NOTE: Until there's a better way to share command level args this is the simplest way
 # we can process shared args between different commands.
 #
 # TODO: It might be a better idea to set the `CONFIG` value so we don't have to keep

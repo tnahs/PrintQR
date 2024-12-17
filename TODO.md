@@ -5,15 +5,11 @@
 ### v0.1.0
 
 - Remove `date` from file output from `init template`.
-- Revisit `Setting._value`.
-  - Do we still need to convert all internal values to `None`?
-- Replace lists of arg parameters with an `InputArgs` object.
-  - We can move the contents of `process_shared_args` into the `__init__`.
 - Add `--dump-toml/--no-dump-toml` to toggle dumping a `TOML` file.
   - Add to `config.toml` too.
 - Add `--confirm-all` flag to say yes to any confirmations.
   - This would just skip the revise pass.
-- Support categoryless names for non-ambiguous fields.
+- Support category-less names for non-ambiguous fields.
   - `slicer-nozzle-temp` CAN be shortened to `nozzle-temp`.
   - `filament-name` CANNOT be shortened to `name`.
 
@@ -30,6 +26,15 @@
 
 ## Chores
 
+- When saving the dumped QR Code data, prepend a comment block with:
+  - 'Generated with PrintQR on YY-MM-DD'
+  - 'Run `pqr template [this file]` to revise these settings.'
+  - The encoding.
+  - A link to the repo.
+- Revisit `Setting._value`.
+  - Do we still need to convert all internal values to `None`?
+- Replace lists of arg parameters with an `InputArgs` object.
+  - We can move the contents of `process_shared_args` into the `__init__`.
 - Add help text that all `Options` fallback to `config.toml`
 - Sort out default `Padding` - `padding_outer`
 - Make sure all relevant config options are available in the right places.

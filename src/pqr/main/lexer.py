@@ -8,7 +8,6 @@ from pygments.token import (
     Error,
     Keyword,
     Name,
-    Number,
     Operator,
     String,
     Whitespace,

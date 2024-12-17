@@ -5,6 +5,7 @@ import unicodedata
 from enum import StrEnum
 from importlib import metadata, resources
 from pathlib import Path
+from typing import Any
 
 import qrcode.constants
 from pygments.lexer import Lexer
@@ -47,6 +48,12 @@ class App:
 
 QR_CODE_VERSION_MIN = 1
 QR_CODE_VERSION_MAX = 40
+
+
+# Types --------------------------------------------------------------------------------
+
+
+Kwargs = dict[str, Any]
 
 
 # Enums --------------------------------------------------------------------------------

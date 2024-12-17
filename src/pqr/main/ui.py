@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 from rich.table import Table
 
-from .shared import console
+from .shared import Kwargs, console
 
 
 # Constants ----------------------------------------------------------------------------
@@ -51,10 +51,7 @@ TABLE_PADDING = {
 }
 
 
-def table(
-    title: str,
-    **kwargs,  # noqa: ANN003
-) -> Table:
+def table(title: str, **kwargs: Kwargs) -> Table:
     # Make a local copy to avoid mutating the original.
     table_style = TABLE_STYLE.copy()
 
@@ -90,7 +87,7 @@ def panel(
     renderable: Any,
     padding_outer: tuple[int, int, int, int] = PADDING_OUTER,
     pretty: bool = False,
-    **kwargs,  # noqa: ANN003
+    **kwargs: Kwargs,
 ) -> Panel | Padding:
     if pretty is True:
         renderable = Pretty(renderable, expand_all=True)
@@ -117,7 +114,7 @@ def print_panel(
     renderable: Any,
     padding_outer: tuple[int, int, int, int] = PADDING_OUTER,
     pretty: bool = False,
-    **kwargs,  # noqa: ANN003
+    **kwargs: Kwargs,
 ) -> None:
     console.print(
         panel(

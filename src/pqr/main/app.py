@@ -83,12 +83,13 @@ def save_config_file(
 
     helpers.copy_file(source, destination, create_destination, force)
 
-    # Build Config Header --------------------------------------------------------------
+    config_file.write_text(build_config_file_header(config_file))
 
-    width = 100
+
+def build_config_file_header(path: Path, width: int = 88) -> str:
     comment_prefix = "# "
 
-    panel_config_header = Panel(
+    header = Panel(
         "\n".join(
             [
                 App.NAME_FULL,
@@ -101,29 +102,34 @@ def save_config_file(
         box=HEAVY,
     )
 
-    # Capture the rendered output
+    # Capture the rendered output.
     with console.capture() as capture:
-        console.print(panel_config_header)
+        console.print(header)
 
-    panel_config_header = capture.get()
-    panel_config_header = "\n".join(
-        [f"{comment_prefix}{line}" for line in panel_config_header.splitlines()]
+    header = capture.get()
+
+    header = "\n".join(
+        [f"{comment_prefix}{line}" for line in header.splitlines()],
     )
 
-    config_file.write_text(
-        "".join(
-            [
-                f"{comment_prefix}{helpers.format_path(config_file)}",
-                f"\n{comment_prefix}",
-                f"\n{panel_config_header}",
-                "\n",
-                "\n",
-                "\n",
-                "\n",
-                f"{config_file.read_text().strip()}",
-            ]
-        )
+    header = "".join(
+        [
+            f"{comment_prefix}{helpers.format_path(path)}",
+            f"\n{comment_prefix}",
+            f"\n{header}",
+            "\n",
+            "\n",
+            "\n",
+            "\n",
+            f"{path.read_text().strip()}",
+        ]
     )
+
+    header = "\n".join(
+        [line.strip() for line in header.splitlines()],
+    )
+
+    return header
 
 
 def is_user_config_setup() -> bool:
