@@ -115,7 +115,7 @@ def apply_string_transformations(
     string = str(string).strip()
 
     for string_transformation in string_transformations:
-        string_transformation.apply(string)
+        string = string_transformation.apply(string)
 
     return string
 
