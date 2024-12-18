@@ -53,7 +53,8 @@ QR_CODE_VERSION_MAX = 40
 # Types --------------------------------------------------------------------------------
 
 
-Kwargs = dict[str, Any]
+# Not a great solution, but it keeps the type checker happy.
+Kwargs = Any
 
 
 # Enums --------------------------------------------------------------------------------
