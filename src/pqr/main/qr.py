@@ -66,7 +66,8 @@ def generate_and_save_qr_code(  # noqa: PLR0913, PLR0917
     history_path.write_text(print_settings.dump())
 
     ui.print_panel(
-        f"QR Code and TOML config saved to [cyan]{image_path.parent}[/cyan]",
+        "QR Code and TOML print settings saved to "
+        f"[cyan]{helpers.format_path(image_path.parent)}[/cyan].",
         #              t  r            b  l
         padding_outer=(1, len(INDENT), 0, len(INDENT)),
     )

@@ -268,7 +268,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
 
     if ignore_defaults is False:
         app.load_config(user=True)
-        app.print_auto_filling_note()
+        app.print_ignore_defaults_note()
 
     encoding = encoding or CONFIG.cfg.options.encoding
     add_caption = (

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.box import HEAVY
 from rich.columns import Columns
+from rich.console import Group
 from rich.panel import Panel
 from rich.prompt import FloatPrompt, IntPrompt, Prompt
 from rich.syntax import Syntax
@@ -138,11 +139,10 @@ def is_user_config_setup() -> bool:
         App.PATH_USER_DATA / App.NAME_CONFIG_FILE,
     ]
 
-    # We need to initialize the application before editing the files.
     return all(item.exists() for item in required_items)
 
 
-def print_auto_filling_note() -> None:
+def print_ignore_defaults_note() -> None:
     config_filepaths = "\n  ".join(
         [
             helpers.format_path(filepath)
@@ -157,25 +157,6 @@ def print_auto_filling_note() -> None:
         f"[dim]Use [cyan]--ignore-defaults[/cyan] to ignore default print settings "
         f"or run [cyan]{App.NAME} edit[/cyan] to edit them.[/dim]",
     )
-
-
-def prompt_date(date_template: str, date: str | None = None) -> str:
-    # Initially we need to get the date template string from the user...
-    if date is None:
-        date = Prompt.ask(
-            prompt=f"{INDENT * 3}Date template string",
-            default=date_template,
-        )
-        date = datetime.now().strftime(date)
-
-    else:
-        # ...on a revising pass, we allow the user to edit the formatted date.
-        date = Prompt.ask(
-            prompt=f"{INDENT * 3}Current date",
-            default=date,
-        )
-
-    return date
 
 
 def prompt_print_settings(
@@ -227,6 +208,25 @@ def prompt_print_settings(
     return print_settings
 
 
+def prompt_date(date_template: str, date: str | None = None) -> str:
+    # Initially we need to get the date template string from the user...
+    if date is None:
+        date = Prompt.ask(
+            prompt=f"{INDENT * 3}Date template string",
+            default=date_template,
+        )
+        date = datetime.now().strftime(date)
+
+    else:
+        # ...on a revising pass, we allow the user to edit the formatted date.
+        date = Prompt.ask(
+            prompt=f"{INDENT * 3}Current date",
+            default=date,
+        )
+
+    return date
+
+
 def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
     print_settings: PrintSettings,
     ignore_defaults: bool,
@@ -253,34 +253,53 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
 
         # Panel: QR Code data ----------------------------------------------------------
 
-        qr_code_data_stats = " ".join(
-            [
-                f"mode:[yellow]{CONFIG.cfg.options.encoding.value}[/yellow]",
-                f"bytes:[yellow]{len(qr_code_data)}[/yellow]",
-            ]
-        )
-
-        # HACK: This ensures the minimum width of the panel is 25. Otherwise the title
-        # or subtitle of the panel could be truncated.
-        qr_code_data = f"{qr_code_data}\n{' ' * 25}"
+        theme = "dracula"
 
         syntax_qr_code_data = Syntax(
             code=qr_code_data,
             lexer=encoding.lexer,
-            theme="dracula",
+            theme=theme,
             background_color="default",
         )
 
-        # TODO: Can we set a minimum width on this?
         panel_qr_code_data = ui.panel(
             syntax_qr_code_data,
-            title="Encoded Data",
-            subtitle=qr_code_data_stats,
+            title="Data",
             #              t  r  b  l
-            padding_outer=(1, 0, 1, 1),
+            padding_outer=(1, 0, 0, 1),
         )
 
-        # Panel/Table: QR Code ASCII preview -------------------------------------------
+        # Panel: Stats -----------------------------------------------------------------
+
+        qr_code_stats = "\n".join(
+            [
+                f"encoding: {CONFIG.cfg.options.encoding.value}",
+                f"version: {qr_code.version}",
+                f"modules: {qr_code.modules_count} x {qr_code.modules_count}",
+                f"error: {CONFIG.cfg.qr_code.error_correction.value}",
+                f"size: {len(qr_code_data.encode('utf-8'))}",
+            ]
+        )
+
+        # Make sure the 'Stats' panel has the same width as the 'Data' panel.
+        panel_width = ui.get_char_max_width(qr_code_data)
+        qr_code_stats = ui.pad_lines(qr_code_stats, panel_width)
+
+        syntax_qr_code_stats = Syntax(
+            code=qr_code_stats,
+            lexer="yaml",
+            theme=theme,
+            background_color="default",
+        )
+
+        panel_qr_code_stats = ui.panel(
+            syntax_qr_code_stats,
+            title="Stats",
+            #              t  r  b  l
+            padding_outer=(0, 0, 0, 1),
+        )
+
+        # Panel: QR Code ASCII preview -------------------------------------------------
 
         template_context = print_settings.to_template_context()
 
@@ -290,16 +309,9 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
             string_transformations=filename_transformations,
         )
 
-        filename = f"filename:[yellow]{basename}{CONFIG.cfg.qr_code.format.to_suffix()}[/yellow]"
+        filename = f"filename: [yellow]{basename}{CONFIG.cfg.qr_code.format.to_suffix()}[/yellow]"
 
         caption = "\n".join(caption_templates).format(**template_context)
-
-        qr_code_stats = " ".join(
-            [
-                f"version:[yellow]{qr_code.version}[/yellow]",
-                f"modules:[yellow]{qr_code.modules_count}x{qr_code.modules_count}[/yellow]",
-            ]
-        )
 
         qr_code_ascii = qr.to_ascii(qr_code)
 
@@ -310,8 +322,8 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
 
         panel_qr_code = ui.panel(
             table_qr_code,
-            title=filename,
-            subtitle=qr_code_stats,
+            title="QR Code Preview",
+            subtitle=filename,
             #        t  r  b  l
             padding=(2, 6, 0, 6),
             #              t  r  b  l
@@ -328,7 +340,10 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
             Columns(
                 [
                     panel_qr_code,
-                    panel_qr_code_data,
+                    Group(
+                        panel_qr_code_data,
+                        panel_qr_code_stats,
+                    ),
                 ],
                 padding=0,
             ),

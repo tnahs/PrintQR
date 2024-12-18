@@ -124,3 +124,32 @@ def print_panel(
             **kwargs,
         )
     )
+
+
+# Utils --------------------------------------------------------------------------------
+
+
+def get_char_max_width(string: str) -> int:
+    """Returns the character length of the longest line in a string
+
+    Args:
+        string (str): The string to test.
+
+    Returns:
+        int: Length of the longest line.
+    """
+    return max(len(line) for line in string.splitlines())
+
+
+def pad_lines(string: str, width: int) -> str:
+    """Returns a string where each line is left-justified padded to a specific width.
+
+    Args:
+        string (str): The string to be formatted.
+        width (int): The target width for each line.
+
+    Returns:
+        str: The formatted string.
+    """
+
+    return "\n".join([line.ljust(width) for line in string.splitlines()])
