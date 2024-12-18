@@ -23,8 +23,7 @@ function prepare_test {
 
 
 function print_help {
-    cat <<EOF
-Test run PrintQR.
+    echo -e "Test run PrintQR.
  
 \e[4mUsage:\e[0m ${script_name} [--help] <COMMAND> [--debug]
  
@@ -35,8 +34,7 @@ Test run PrintQR.
  
 \e[4mOptions:\e[0m
   -d, --debug   Run in debug mode
-  -h, --help    Show help
-EOF
+  -h, --help    Show help"
 }
 
 
@@ -95,8 +93,8 @@ function from_args {
 function from_template {
     uv run pqr $debug template                             \
                                                            \
+        "${root}/src/pqr/tests/template-data.toml"         \
         --output "$tmp"                                    \
-        --input "${root}/src/pqr/tests/template-data.toml" \
         --encoding "compact"                               \
         --add-caption                                      \
         --add-date                                         \
@@ -134,7 +132,7 @@ function main {
             prepare_test
             from_args
             ;;
-        "encoded")
+        "template")
             prepare_test
             from_template
             ;;
