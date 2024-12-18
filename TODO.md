@@ -4,17 +4,33 @@
 
 ### v0.1.0
 
+- Input paths need to be checked before they are passed to application.
+  - Ensure they exist.
+  - Ensure proper file-extension
 - Remove `date` from file output from `init template`.
-- Add `--dump-toml/--no-dump-toml` to toggle dumping a `TOML` file.
-  - Add to `config.toml` too.
-- Add `--confirm-all` flag to say yes to any confirmations.
-  - This would just skip the revise pass.
-- Support category-less names for non-ambiguous fields.
-  - `slicer-nozzle-temp` CAN be shortened to `nozzle-temp`.
-  - `filament-name` CANNOT be shortened to `name`.
 
 ### v0.2.0
 
+- Print warning if the QR Code version had to be increased.
+- Add `--dump-toml/--no-dump-toml` to toggle dumping a `TOML` file.
+  - Add to `config.toml` too.
+- Support category-less names for non-ambiguous fields.
+  - `slicer-nozzle-temp` CAN be shortened to `nozzle-temp`.
+  - `filament-name` CANNOT be shortened to `name`.
+- Add `caption.font-size-min` to config.
+- Add a force-like flag to say yes to any confirmations.
+  - For batch scripting.
+  - This would:
+    - Skip the revise pass.
+    - Silence outputs.
+    - Disable image previews.
+- Add `--show/--no-show` to toggle opening the image after generation.
+- When saving the dumped QR Code data, prepend a comment block with:
+  - 'Generated with PrintQR on YY-MM-DD'
+  - 'Run `pqr template [this file]` to revise these settings.'
+  - The encoding.
+  - A link to the repo.
+  - QR Code settings
 - Generate QR Code from `3mf` file.
   - Add `--generate-gcode` to also slice and generate the GCode file.
 - Format `print-time`, so it parses out `hh:mm` or `##h##m`
@@ -26,11 +42,7 @@
 
 ## Chores
 
-- When saving the dumped QR Code data, prepend a comment block with:
-  - 'Generated with PrintQR on YY-MM-DD'
-  - 'Run `pqr template [this file]` to revise these settings.'
-  - The encoding.
-  - A link to the repo.
+- Use `Textual` for QR Code previews screen.
 - Revisit `Setting._value`.
   - Do we still need to convert all internal values to `None`?
 - Replace lists of arg parameters with an `InputArgs` object.
