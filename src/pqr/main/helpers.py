@@ -22,10 +22,10 @@ def copy_file(
     """Copies a file into a directory.
 
     Args:
-        source: Path to source file.
-        destination: Path to destination directory.
-        create_destination: Create the destination if it doesn't exist.
-        force: Overwrite file if it exists.
+        source (Path): Path to source file.
+        destination (Path): Path to destination directory.
+        create_destination (bool): Create the destination if it doesn't exist.
+        force (bool): Overwrite file if it exists.
 
     Returns:
         None
@@ -59,7 +59,7 @@ def edit_file(path: Path) -> None:
     """Edit a file.
 
     Args:
-        path: Path to the file.
+        path (Path): Path to the file.
 
     Returns:
         None
@@ -130,7 +130,7 @@ def format_path(path: Path) -> str:
         4. Otherwise, return the absolute path.
 
     Args:
-        path: Path to format.
+        path (Path): Path to format.
 
     Returns:
         str: Formatted path.
