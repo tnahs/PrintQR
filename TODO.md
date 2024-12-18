@@ -42,6 +42,7 @@
 
 ## Chores
 
+- Split application and library code into modules.
 - Use `Textual` for QR Code previews screen.
 - Revisit `Setting._value`.
   - Do we still need to convert all internal values to `None`?
