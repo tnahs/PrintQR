@@ -121,6 +121,12 @@ def _add_caption_to_image(
 ) -> Image.Image:
     border_thickness = CONFIG.cfg.qr_code.border * CONFIG.cfg.qr_code.module_size
 
+    # We need the original font size here to create consistent image sizes. If the font
+    # size decreases depending on the contents of the caption it prevents us from having
+    # a consistent size for a serie of QR Codes.
+    #
+    # TODO: Should we add 'caption.fit-height' be an option?
+    font_size_max = CONFIG.cfg.caption.font_size_max
     font_size = _get_font_size(
         image.width,
         border_thickness,
@@ -135,9 +141,9 @@ def _add_caption_to_image(
 
     caption_bbox_height = (
         CONFIG.cfg.caption.padding_top
-        + font_size
+        + font_size_max
         + CONFIG.cfg.caption.line_spacing
-        + font_size
+        + font_size_max
         + CONFIG.cfg.caption.padding_bottom
     )
 
@@ -163,7 +169,7 @@ def _add_caption_to_image(
 
     # Draw first line of text.
 
-    y_draw_pos += image.height + CONFIG.cfg.caption.padding_top + font_size
+    y_draw_pos += image.height + CONFIG.cfg.caption.padding_top + font_size_max
 
     image_draw.text(
         (
@@ -178,7 +184,7 @@ def _add_caption_to_image(
 
     # Draw second line of text.
 
-    y_draw_pos += CONFIG.cfg.caption.line_spacing + font_size
+    y_draw_pos += CONFIG.cfg.caption.line_spacing + font_size_max
 
     image_draw.text(
         (
