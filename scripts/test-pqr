@@ -1,47 +1,23 @@
 #!/usr/bin/env zsh
 
 
-# Project root directory
-# https://unix.stackexchange.com/a/115431
-root=${0:A:h:h}
+# shellcheck disable=2296
+NAME=$(basename "${(%):-%N}")
 
-tmp="$root/tmp"
+ROOT=${0:A:h:h}
+TMP="$ROOT/tmp"
 
 debug=""
 
 
-if [ -n "$ZSH_VERSION" ]; then
-    script_name=$(basename "${(%):-%N}")
-else
-    script_name=$(basename "$0")
-fi
-
-
 function prepare_test {
-    mkdir -p "$tmp"
-}
-
-
-function print_help {
-    echo -e "Test run PrintQR.
- 
-\e[4mUsage:\e[0m ${script_name} [--help] <COMMAND> [--debug]
- 
-\e[4mCommands:\e[0m
-  prompts
-  args
-  encoded
- 
-\e[4mOptions:\e[0m
-  -d, --debug   Run in debug mode
-  -h, --help    Show help"
+    mkdir -p "$TMP"
 }
 
 
 function from_prompts {
     uv run pqr $debug prompts                             \
-                                                          \
-        --output "$tmp"                                   \
+        --output "$TMP"                                   \
         --encoding "compact"                              \
         --add-caption                                     \
         --add-date                                        \
@@ -56,8 +32,7 @@ function from_prompts {
 
 function from_args {
     uv run pqr $debug args                                \
-                                                          \
-        --output "$tmp"                                   \
+        --output "$TMP"                                   \
         --encoding "compact"                              \
         --add-caption                                     \
         --add-date                                        \
@@ -92,9 +67,8 @@ function from_args {
 
 function from_template {
     uv run pqr $debug template                             \
-                                                           \
-        "${root}/src/pqr/tests/template-data.toml"         \
-        --output "$tmp"                                    \
+        "${ROOT}/src/pqr/tests/template-data.toml"         \
+        --output "$TMP"                                    \
         --encoding "compact"                               \
         --add-caption                                      \
         --add-date                                         \
@@ -107,16 +81,33 @@ function from_template {
 }
 
 
+function print_help {
+    echo -e "Test run PrintQR.
+ 
+\e[4mUsage:\e[0m ${NAME} [OPTIONS] <COMMAND> [--debug/-d]
+ 
+\e[4mCommands:\e[0m
+  prompts   Run test using the 'prompts' command
+  args      Run test using the 'args' command
+  template  Run test using the 'template' command
+ 
+\e[4mOptions:\e[0m
+  -d, --debug  Run in debug mode
+  -h, --help   Show help"
+}
+
+
 function main {
 
     if [[ "$1" == "--help" || "$1" == "-h" ]]; then
         print_help
-        exit 1
-    elif [ $# -eq 0 ]; then
-        echo "Error: Missing command"
-        echo
+        exit 0
+    fi
+
+    if [[ $# -ne 1 ]]; then
+        echo "Error: missing required positional argument 'command'"
         print_help
-        exit 2
+        exit 1
     fi
 
     if [[ "$2" == "--debug" || "$2" == "-d" ]]; then
@@ -137,10 +128,9 @@ function main {
             from_template
             ;;
         *)
-            echo "Error: Invalid command '$1'"
-            echo
+            echo "Error: invalid command '$1'"
             print_help
-            exit 2
+            exit 1
             ;;
     esac
 }
