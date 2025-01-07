@@ -83,14 +83,14 @@ function from_template {
 
 function print_help {
     echo -e "Test run PrintQR.
- 
+
 \e[4mUsage:\e[0m ${NAME} [OPTIONS] <COMMAND> [--debug/-d]
- 
+
 \e[4mCommands:\e[0m
   prompts   Run test using the 'prompts' command
   args      Run test using the 'args' command
   template  Run test using the 'template' command
- 
+
 \e[4mOptions:\e[0m
   -d, --debug  Run in debug mode
   -h, --help   Show help"

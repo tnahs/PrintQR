@@ -3,13 +3,12 @@ from __future__ import annotations
 import inspect
 import sys
 from collections import defaultdict
-from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import StrEnum
 from inspect import Parameter, Signature
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from typer import Argument, BadParameter, Exit, Option, Typer
 
@@ -23,6 +22,10 @@ from .tables import (
     TABLE_TEMPLATES_DATE,
     TABLE_TEMPLATES_FIELDS,
 )
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 PATH_CWD = Path.cwd()
@@ -50,7 +53,7 @@ cli = Typer(
 def version_callback(value: bool) -> None:
     if value:
         console.print(f"{App.NAME_FULL} [green]v{App.VERSION}[/green]")
-        raise Exit()
+        raise Exit
 
 
 @cli.callback()
@@ -89,7 +92,7 @@ def validate_template_string(value: str | list[str] | None) -> str | list[str] |
     for string in strings:
         try:
             string.format(**PRINT_SETTINGS.to_template_context())
-        except Exception as error:
+        except Exception as error:  # noqa: PERF203
             raise BadParameter(string) from error
 
     return value
@@ -100,7 +103,7 @@ def validate_date_template(value: str | None) -> str | None:
         return None
 
     try:
-        datetime.now().strftime(value)
+        datetime.now(tz=UTC).strftime(value)
     except Exception as error:
         raise BadParameter(value) from error
 
@@ -495,7 +498,7 @@ def _wrapper_run_command_generate_from_args() -> Callable:
 
     parameters = original_parameters + print_settings
 
-    run_command_generate_from_args.__signature__ = Signature(parameters)  # type: ignore
+    run_command_generate_from_args.__signature__ = Signature(parameters)  # pyright: ignore [reportFunctionMemberAccess]
 
     return run_command_generate_from_args
 
