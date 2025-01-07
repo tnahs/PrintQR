@@ -20,14 +20,6 @@ repos:
         files: ^src/
   - repo: local
     hooks:
-      - id: prettier-format-json
-        name: prettier format json
-        entry: >
-          prettier
-            --parser json
-            --write
-        language: system
-        types: [json]
       - id: prettier-format-yaml
         name: prettier format yaml
         entry: >
