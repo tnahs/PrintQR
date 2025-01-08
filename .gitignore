@@ -215,4 +215,6 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,freecad,python
 
-tmp/
+
+# Misc
+.tmp*/
