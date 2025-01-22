@@ -1,12 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,freecad,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,freecad,python
-
-### FreeCad ###
-*.pyc
-*.fcstd1
-*.FCStd1
-*.fcstd2
-*.FCStd2
+# Created by https://www.toptal.com/developers/gitignore/api/macos,python
+# Edit at https://www.toptal.com/developers/gitignore?templates=macos,python
 
 ### macOS ###
 # General
@@ -213,7 +206,7 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,freecad,python
+# End of https://www.toptal.com/developers/gitignore/api/macos,python
 
 
 # Misc
