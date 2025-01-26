@@ -6,12 +6,10 @@
 
 ## Installation
 
-The recommended method for installation requires [`uv`][uv]. This allows us
-to easily install `PrintQR` into its own virtual environment with the correct
-version of python and add it to `PATH`.
+The recommended method for installation requires [`uv`][uv]. This allows us to easily install
+`PrintQR` into its own virtual environment with the correct version of python and add it to `PATH`.
 
-If that's not possible, a `requirements.txt` file is included for a manual
-installation using `pip`.
+If that's not possible, a `requirements.txt` file is included for a manual installation using `pip`.
 
 1. Install `uv`.
 
@@ -27,7 +25,7 @@ installation using `pip`.
 3. Install using `uv`.
 
    ```shell
-   $ uv tool install .
+   $ uv tool install . --force --no-cache
    ```
 
 4. Check the installation.
@@ -200,9 +198,9 @@ For most cases, adding a new field is relatively easy.
 
 ### [`print-settings.toml`][print-settings]
 
-All fields and their associate attributes are defined in this file. A
-single field is defined as a dictionary in a list named `print-settings`. See
-[`print-settings.toml`][print-settings] for more examples.
+All fields and their associate attributes are defined in this file. A single field is defined as a
+dictionary in a list named `print-settings`. See [`print-settings.toml`][print-settings] for more
+examples.
 
 ```toml
 [[print-settings]]
@@ -219,9 +217,8 @@ name = "extrusion-width"
 #
 category = "slicer"
 
-# A valid Python type. This type is used when validating
-# values passed into the field. The value defined here
-# is passed to `eval` to retrieve the type.
+# A valid Python type. This type is used when validating values passed into the
+# filed. The value defined here is passed to `eval` to retrieve the type.
 #
 # Must be one of:
 #
@@ -243,14 +240,12 @@ description = "filament preset"
 
 ### [`config.toml`][config]
 
-The field's default value is defined in this file within the `print-settings`
-dictionary.
+The field's default value is defined in this file within the `print-settings` dictionary.
 
-When the application starts, this file is copied to the user's config directory
-(`~./pqr`) if it doesn't already exist there. It's important to add the
-default value to the application's [`config.toml`][config] and not just your
-own. The application's [`config.toml`][config] acts as a fallback for any values
-not defined in the user's `config.toml`.
+When the application starts, this file is copied to the user's config directory (`~./pqr`) if
+it doesn't already exist there. It's important to add the default value to the application's
+[`config.toml`][config] and not just your own. The application's [`config.toml`][config] acts as a
+fallback for any values not defined in the user's `config.toml`.
 
 [config]: ./src/pqr/data/config.toml
 [print-settings]: ./src/pqr/data/print-settings.toml
