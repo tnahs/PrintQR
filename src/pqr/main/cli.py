@@ -80,7 +80,7 @@ def main_cli(
     CONFIG.debug = debug
 
 
-# Validation ---------------------------------------------------------------------------
+# Validation ---------------------------------------------------------------------------------------
 
 
 def validate_template_string(value: str | list[str] | None) -> str | list[str] | None:
@@ -124,7 +124,7 @@ def parse_filename_transformations(
         ) from error
 
 
-# Shared Args --------------------------------------------------------------------------
+# Shared Args --------------------------------------------------------------------------------------
 
 
 arg_output_directory = Annotated[
@@ -246,8 +246,8 @@ arg_force = Annotated[
 #
 # TODO: It might be a better idea to set the `CONFIG` value so we don't have to keep
 # passing around the variables. As we add more options the list of parameters will
-# expand and it would be much better it either pass a `Config` object or just access
-# the global CONFIG.
+# expand and it would be much better it either pass a `Config` object or just access the
+# global CONFIG.
 def process_shared_args(  # noqa: PLR0913, PLR0917
     output_directory: Path,
     ignore_defaults: bool,
@@ -313,7 +313,7 @@ def process_shared_args(  # noqa: PLR0913, PLR0917
     return namespace
 
 
-# Command: prompts ---------------------------------------------------------------------
+# Command: prompts ---------------------------------------------------------------------------------
 
 
 @cli.command(
@@ -379,7 +379,7 @@ def run_command_generate_from_prompts(  # noqa: PLR0913, PLR0917
     )
 
 
-# Command: args ------------------------------------------------------------------------
+# Command: args ------------------------------------------------------------------------------------
 
 
 def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
@@ -511,7 +511,7 @@ cli.command(
 )(_wrapper_run_command_generate_from_args())
 
 
-# Command: template --------------------------------------------------------------------
+# Command: template --------------------------------------------------------------------------------
 
 
 @cli.command(
@@ -592,7 +592,7 @@ def run_command_generate_from_template(  # noqa: PLR0913, PLR0917
     )
 
 
-# Command: revise ----------------------------------------------------------------------
+# Command: revise ----------------------------------------------------------------------------------
 
 
 @cli.command(
@@ -666,7 +666,7 @@ def run_command_generate_from_history(  # noqa: PLR0913, PLR0917
     )
 
 
-# Sub-command: init --------------------------------------------------------------------
+# Sub-command: init --------------------------------------------------------------------------------
 
 cli_init = Typer(
     **TYPER_CONFIG,  # pyright: ignore [reportArgumentType]
@@ -725,7 +725,7 @@ def init_template_command(
     )
 
 
-# Command: print -----------------------------------------------------------------------
+# Command: print -----------------------------------------------------------------------------------
 
 
 class ChoiceReferenceTable(StrEnum):
@@ -762,7 +762,7 @@ def run_command_info(
             console.print(TABLE_STRING_TRANSFORMATIONS)
 
 
-# Command: edit ------------------------------------------------------------------------
+# Command: edit ------------------------------------------------------------------------------------
 
 
 # TODO: Modify this so that it detects if there is a local config. Give the user some

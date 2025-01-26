@@ -256,7 +256,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
             border=CONFIG.cfg.qr_code.border,
         )
 
-        # Panel: QR Code data ----------------------------------------------------------
+        # Panel: QR Code data ----------------------------------------------------------------------
 
         theme = "dracula"
 
@@ -274,7 +274,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
             padding_outer=(1, 0, 0, 1),
         )
 
-        # Panel: Stats -----------------------------------------------------------------
+        # Panel: Stats -----------------------------------------------------------------------------
 
         qr_code_stats = "\n".join(
             [
@@ -304,7 +304,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
             padding_outer=(0, 0, 0, 1),
         )
 
-        # Panel: QR Code ASCII preview -------------------------------------------------
+        # Panel: QR Code ASCII preview -------------------------------------------------------------
 
         template_context = print_settings.to_template_context()
 
@@ -335,7 +335,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
             padding_outer=(1, 1, 1, len(INDENT)),
         )
 
-        # ------------------------------------------------------------------------------
+        # ------------------------------------------------------------------------------------------
 
         if CONFIG.debug is False:
             console.clear()
@@ -354,7 +354,7 @@ def revise_print_settings(  # noqa: PLR0913, PLR0914, PLR0917
             ),
         )
 
-        # ------------------------------------------------------------------------------
+        # ------------------------------------------------------------------------------------------
 
         reply = Prompt.ask(
             f"{INDENT * 2}[magenta]Generate [Gg] / Revise [Rr] / Abort [Aa][/magenta]",
