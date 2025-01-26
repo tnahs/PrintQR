@@ -5,16 +5,19 @@ import unicodedata
 from enum import StrEnum
 from importlib import metadata, resources
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import qrcode.constants
-from pygments.lexer import Lexer
 from rich.console import Console
 
 from .lexer import CompactLexer
 
 
 # Console ----------------------------------------------------------------------------
+if TYPE_CHECKING:
+    from pygments.lexer import Lexer
+
+
 
 
 console = Console()

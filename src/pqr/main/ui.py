@@ -19,7 +19,7 @@ INDENT = "   "
 MISSING = "?"
 
 TABLE_BORDER: Box = Box(
-    "".join(
+    "".join(  # noqa: FLY002
         [
             "┏━━┓\n",
             "┃  ┃\n",

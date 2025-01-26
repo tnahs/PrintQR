@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import sys
-from datetime import datetime
-from pathlib import Path
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from rich.box import HEAVY
 from rich.columns import Columns
@@ -15,9 +15,14 @@ from rich.table import Table
 from . import errors, helpers, qr, ui
 from .config import CONFIG, ConfigManager
 from .errors import ConfigReadError, ConfigValidationError
-from .settings import PrintSettings
 from .shared import App, Encoding, Key, StringTransformation, console
 from .ui import INDENT
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from .settings import PrintSettings
 
 
 def load_config(user: bool) -> None:
@@ -215,7 +220,7 @@ def prompt_date(date_template: str, date: str | None = None) -> str:
             prompt=f"{INDENT * 3}Date template string",
             default=date_template,
         )
-        date = datetime.now().strftime(date)
+        date = datetime.now(tz=UTC).strftime(date)
 
     else:
         # ...on a revising pass, we allow the user to edit the formatted date.
