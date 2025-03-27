@@ -393,7 +393,7 @@ def run_command_generate_from_args(  # noqa: PLR0913, PLR0917
     filename_template: arg_filename_template = None,
     filename_transformations: arg_filename_transformations = None,
     caption_templates: arg_caption_templates = None,
-    **print_settings,  # noqa: ANN003
+    **print_settings,
 ) -> None:
     """Generate a QR Code from commandline [green]args[/green]."""
 

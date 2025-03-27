@@ -5,7 +5,7 @@ import unicodedata
 from enum import StrEnum
 from importlib import metadata, resources
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import qrcode.constants
 from rich.console import Console
@@ -51,13 +51,6 @@ class App:
 
 QR_CODE_VERSION_MIN = 1
 QR_CODE_VERSION_MAX = 40
-
-
-# Types --------------------------------------------------------------------------------------------
-
-
-# Not a great solution, but it keeps the type checker happy.
-Kwargs = Any
 
 
 # Enums --------------------------------------------------------------------------------------------

@@ -26,9 +26,6 @@ def copy_file(
         destination (Path): Path to destination directory.
         create_destination (bool): Create the destination if it doesn't exist.
         force (bool): Overwrite file if it exists.
-
-    Returns:
-        None
     """
 
     style = "yellow"
@@ -60,9 +57,6 @@ def edit_file(path: Path) -> None:
 
     Args:
         path (Path): Path to the file.
-
-    Returns:
-        None
     """
 
     editor = os.environ.get("EDITOR", App.DEFAULT_EDITOR)

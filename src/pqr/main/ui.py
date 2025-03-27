@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 from rich.table import Table
 
-from .shared import Kwargs, console
+from .shared import console
 
 
 # Constants ----------------------------------------------------------------------------------------
@@ -19,19 +19,15 @@ INDENT = "   "
 MISSING = "?"
 
 TABLE_BORDER: Box = Box(
-    "".join(  # noqa: FLY002
-        [
-            "┏━━┓\n",
-            "┃  ┃\n",
-            "┠──┨\n",
-            "┃  ┃\n",
-            "┠──┨\n",
-            "┠──┨\n",
-            "┃  ┃\n",
-            "┗━━┛\n",
-        ]
-    )
-)
+    "┏━━┓\n"
+    "┃  ┃\n"
+    "┠──┨\n"
+    "┃  ┃\n"
+    "┠──┨\n"
+    "┠──┨\n"
+    "┃  ┃\n"
+    "┗━━┛\n"
+)  # fmt: skip
 
 
 # Table --------------------------------------------------------------------------------------------
@@ -51,7 +47,7 @@ TABLE_PADDING = {
 }
 
 
-def table(title: str, **kwargs: Kwargs) -> Table:
+def table(title: str, **kwargs) -> Table:
     # Make a local copy to avoid mutating the original.
     table_style = TABLE_STYLE.copy()
 
@@ -87,7 +83,7 @@ def panel(
     renderable: Any,
     padding_outer: tuple[int, int, int, int] = PADDING_OUTER,
     pretty: bool = False,
-    **kwargs: Kwargs,
+    **kwargs,
 ) -> Panel | Padding:
     if pretty is True:
         renderable = Pretty(renderable, expand_all=True)
@@ -114,7 +110,7 @@ def print_panel(
     renderable: Any,
     padding_outer: tuple[int, int, int, int] = PADDING_OUTER,
     pretty: bool = False,
-    **kwargs: Kwargs,
+    **kwargs,
 ) -> None:
     console.print(
         panel(
