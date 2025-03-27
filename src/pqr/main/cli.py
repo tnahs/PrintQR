@@ -110,20 +110,6 @@ def validate_date_template(value: str | None) -> str | None:
     return value
 
 
-def parse_filename_transformations(
-    value: str | None,
-) -> StringTransformation | None:
-    if value is None:
-        return None
-
-    try:
-        return StringTransformation(value)
-    except ValueError as error:
-        raise BadParameter(
-            f"'{value}'. Allowed values are: {', '.join(StringTransformation.choices())}."
-        ) from error
-
-
 # Shared Args --------------------------------------------------------------------------------------
 
 
@@ -204,8 +190,6 @@ arg_filename_template = Annotated[
     ),
 ]
 
-# NOTE: We're manually parsing the arg here as there's no way to tell Typer to hide the
-# enum's choices. The list of transformations is much too long to display.
 arg_filename_transformations = Annotated[
     list[StringTransformation] | None,
     Option(
@@ -213,8 +197,7 @@ arg_filename_transformations = Annotated[
         "--filename-transformation",
         help=f"Run [cyan]'{App.NAME} info transformations'[/cyan] for more information.",
         show_default=False,
-        metavar="TRANSFORMATION",
-        parser=parse_filename_transformations,
+        metavar="NAME",
     ),
 ]
 
