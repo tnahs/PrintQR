@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import qrcode.constants
-from rich.console import Console
+from rlog import Console
 
 from .lexer import CompactLexer
 
@@ -17,13 +17,7 @@ if TYPE_CHECKING:
     from pygments.lexer import Lexer
 
 
-# Console ------------------------------------------------------------------------------------------
-
-
 console = Console()
-
-
-# Constants ----------------------------------------------------------------------------------------
 
 
 class App:
@@ -51,9 +45,6 @@ class App:
 
 QR_CODE_VERSION_MIN = 1
 QR_CODE_VERSION_MAX = 40
-
-
-# Enums --------------------------------------------------------------------------------------------
 
 
 class Key:
